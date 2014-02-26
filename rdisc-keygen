@@ -1,0 +1,49 @@
+#!/bin/sh -e
+
+# 
+# Copyright 2014 Andrew Ayer
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# 
+
+PROGNAME=`basename "$0"`
+USAGE="$PROGNAME KEYFILE"
+KEYSIZE=64 # in bytes; HMAC-SHA-256 key size
+
+if [ $# -ne 1 ]
+then
+	echo "Usage: $USAGE" >&2
+	exit 2
+fi
+keyfile=$1
+if [ -e "$keyfile" ]
+then
+	echo "$PROGNAME: $keyfile: already exists" >&2
+	exit 1
+fi
+
+umask 077
+
+for device in /dev/urandom /dev/random
+do
+	if [ -e "$device" ]
+	then
+		dd if="$device" of="$keyfile" bs=1 count=$KEYSIZE
+		echo "$keyfile created"
+		exit 0
+	fi
+done
+
+echo "$PROGNAME: no random devices found (neither /dev/urandom nor /dev/random exist)" >&2
+exit 1
