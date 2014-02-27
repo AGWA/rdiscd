@@ -55,7 +55,7 @@ namespace {
 
 	void print_usage (const char* arg0)
 	{
-		std::clog << "Usage: " << arg0 << "[OPTIONS] INTERFACE" << std::endl;
+		std::clog << "Usage: " << arg0 << " [OPTIONS] INTERFACE" << std::endl;
 		std::clog << "Options:" << std::endl;
 		std::clog << " -f                     (don't daemonize)" << std::endl;
 		std::clog << " -p PIDFILE" << std::endl;
