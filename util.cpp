@@ -64,34 +64,6 @@ bool get_if_macaddr (unsigned char* macaddr, const char* ifname)
 	return parse_macaddr_string(macaddr, macaddr_string.c_str());
 }
 
-int	get_accept_ra (const char* ifname)
-{
-	std::string	path("/proc/sys/net/ipv6/conf/");
-	path += ifname;
-	path += "/accept_ra";
-
-	int		accept_ra = -1;
-	std::ifstream	file(path.c_str());
-	if (file) {
-		file >> accept_ra;
-	}
-	return accept_ra;
-}
-
-bool	set_accept_ra (const char* ifname, int accept_ra)
-{
-	std::string	path("/proc/sys/net/ipv6/conf/");
-	path += ifname;
-	path += "/accept_ra";
-
-	std::ofstream	file(path.c_str());
-	if (file) {
-		file << accept_ra;
-	}
-	return file;
-}
-
-
 /* Translate 48-bit (6 byte) MAC address to a 64-bit modified interface identifier
  * and write it to the second half of the IPv6 address.
  *

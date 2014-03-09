@@ -22,8 +22,6 @@
 int			get_ifindex (const char* ifname);
 bool			parse_macaddr_string (unsigned char* macaddr, const char* macaddr_string);
 bool			get_if_macaddr (unsigned char* macaddr, const char* ifname);
-int			get_accept_ra (const char* ifname);
-bool			set_accept_ra (const char* ifname, int accept_ra);
 void			fill_address_from_mac (struct in6_addr* address, const unsigned char* mac);
 void			set_address_suffix (struct in6_addr* address, const struct in6_addr& suffix, unsigned int slen);
 unsigned int		count_suffix_length (const struct in6_addr& address);
