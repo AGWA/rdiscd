@@ -179,7 +179,7 @@ int			systemv (const char* command, const char* const* argv)
 		return -1;
 	}
 	if (child == 0) {
-		execvp("/bin/echo", const_cast<char* const*>(argv));
+		execvp(command, const_cast<char* const*>(argv));
 		std::perror(command);
 		_exit(127);
 	}
