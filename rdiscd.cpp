@@ -259,6 +259,12 @@ int main (int argc, char** argv)
 		return 1;
 	}
 
+	int	orig_accept_ra = get_accept_ra(interface_name);
+	if (orig_accept_ra == -1) {
+		std::clog << argv[0] << ": " << interface_name << ": Unable to determine current accept_ra setting" << std::endl;
+		return 1;
+	}
+
 	/*
 	 * Derive the interface ID
 	 */
@@ -411,7 +417,9 @@ int main (int argc, char** argv)
 
 	init_signals();
 
+	set_accept_ra(interface_name, 0); // TODO: error check?
 	rdisc.run(is_running);
+	set_accept_ra(interface_name, orig_accept_ra);
 
 	if (pid_file) {
 		unlink(pid_file);
