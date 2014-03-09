@@ -1,0 +1,50 @@
+#!/bin/sh
+
+RDISCD=/usr/sbin/rdiscd
+RUNDIR=/var/run/rdiscd
+
+if [ "$ADDRFAM" = "inet6" ] && [ "$METHOD" = "manual" ] && [ "$IF_RDISCD" = "yes" ]
+then
+	if [ ! -d $RUNDIR ]
+	then
+		mkdir -p $RUNDIR
+		chmod 770 $RUNDIR
+	fi
+
+	if [ -z "$IF_RDISCD_INTERFACE_ID" ]
+	then
+		IF_RDISCD_INTERFACE_ID=stable-privacy
+	fi
+
+	DAEMON_OPTS="-i $IF_RDISCD_INTERFACE_ID"
+	if [ -n "$IF_RDISCD_INTERFACE_ID_LEN" ]
+	then
+		DAEMON_OPTS="$DAEMON_OPTS -l $IF_RDISCD_INTERFACE_ID_LEN"
+	fi
+	if [ -n "$IF_RDISCD_MACADDR" ]
+	then
+		DAEMON_OPTS="$DAEMON_OPTS -m $IF_RDISCD_MACADDR"
+	fi
+	if [ "$IF_RDISCD_INTERFACE_ID" = "stable-privacy" ]
+	then
+		DAEMON_OPTS="$DAEMON_OPTS -I ${IF_RDISCD_STABLE_PRIVACY_INTERFACE:-macaddr}"
+		if [ -n "$IF_RDISCD_STABLE_PRIVACY_KEY" ]
+		then
+			DAEMON_OPTS="$DAEMON_OPTS -k $IF_RDISCD_STABLE_PRIVACY_KEY"
+		elif [ -f /etc/rdiscd.key ]
+		then
+			DAEMON_OPTS="$DAEMON_OPTS -k /etc/rdiscd.key"
+		fi
+	fi
+
+	PIDFILE=$RUNDIR/$IFACE.pid
+	DAEMON_OPTS="$DAEMON_OPTS -p $PIDFILE"
+
+	modprobe -q net-pf-10 > /dev/null 2>&1 || true
+	echo 0 > /proc/sys/net/ipv6/conf/$IFACE/accept_ra # XXX: or should this be autoconf?
+	echo 0 > /proc/sys/net/ipv6/conf/$IFACE/accept_dad # hack until rdiscd can properly wait for DAD to complete
+	ip link set dev $IFACE up
+	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $RDISCD -- $DAEMON_OPTS $IFACE
+fi
+
+exit 0

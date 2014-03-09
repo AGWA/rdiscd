@@ -1,0 +1,3 @@
+rdiscd usr/sbin
+rdiscd-keygen usr/sbin
+rdiscmon usr/sbin

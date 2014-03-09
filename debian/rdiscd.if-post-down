@@ -1,0 +1,27 @@
+#!/bin/sh
+
+RDISCD=/usr/sbin/rdiscd
+RUNDIR=/var/run/rdiscd
+
+if [ "$ADDRFAM" = "inet6" ] && [ "$METHOD" = "manual" ] && [ "$IF_RDISCD" = "yes" ]
+then
+	PIDFILE=$RUNDIR/$IFACE.pid
+
+	if [ -f $PIDFILE ]
+	then
+		start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE --oknodo --exec $RDISCD
+		rm -f $PIDFILE
+	fi
+
+	if ! expr index $IFACE :. > /dev/null
+	then
+		# Only bring down interfaces which DON'T have : or . in their names.
+		# This mirrors the behavior in ifupdown.
+		ip link set dev $IFACE down
+	fi
+
+	# restore accept_dad setting (hack until rdiscd can properly wait for DAD to complete):
+	cat /proc/sys/net/ipv6/conf/default/accept_dad > /proc/sys/net/ipv6/conf/$IFACE/accept_dad
+fi
+
+exit 0

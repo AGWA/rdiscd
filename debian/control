@@ -1,0 +1,17 @@
+Source: rdiscd
+Maintainer: Andrew Ayer <agwa@andrewayer.name>
+Section: net
+Priority: extra
+Standards-Version: 3.9.4
+Build-Depends: debhelper (>= 9), make (>= 3.81-5), libc6-dev (>= 2.7-18), gcc (>= 4:4.3.2-2), coreutils (>= 6.10-6), libndp-dev
+
+Package: rdiscd
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: IPv6 Router Discovery Daemon
+ rdiscd is a daemon for performing IPv6 router discovery in userspace.
+ It provides greater flexibility and more functionality than the kernel's
+ router discovery implementation.  For example, rdiscd supports static
+ interface IDs, where the advertised prefix is combined with a static
+ suffix to form a complete address.  It also supports the draft standard
+ for "stable privacy addresses" (draft-ietf-6man-stable-privacy-addresses).
