@@ -200,7 +200,7 @@ namespace {
 }
 
 int main (int argc, char** argv)
-{
+try {
 	bool		want_daemonize = true;
 	const char*	pid_file = NULL;
 	const char*	interface_id_string = "macaddr";
@@ -418,8 +418,10 @@ int main (int argc, char** argv)
 	}
 
 	return 0;
+} catch (const Rdisc::libndp_error& e) {
+	std::clog << "rdiscd[" << e.ifname << "]: " << e.where << ": libndp error " << e.error << std::endl;
+	return 1;
+} catch (const Rdisc::system_error& e) {
+	std::clog << "rdiscd[" << e.ifname << "]: " << e.where << ": " << strerror(e.error) << std::endl;
+	return 1;
 }
-
-
-
-
