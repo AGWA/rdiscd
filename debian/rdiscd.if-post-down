@@ -19,9 +19,6 @@ then
 		# This mirrors the behavior in ifupdown.
 		ip link set dev $IFACE down
 	fi
-
-	# restore accept_dad setting (hack until rdiscd can properly wait for DAD to complete):
-	cat /proc/sys/net/ipv6/conf/default/accept_dad > /proc/sys/net/ipv6/conf/$IFACE/accept_dad
 fi
 
 exit 0
