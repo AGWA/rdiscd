@@ -200,7 +200,7 @@ namespace {
 }
 
 int main (int argc, char** argv)
-try {
+{
 	bool		want_daemonize = true;
 	const char*	pid_file = NULL;
 	const char*	interface_id_string = "macaddr";
@@ -365,63 +365,70 @@ try {
 	std::clog << "Interface ID = " << addrstr << "; length = " << interface_id_len << std::endl;
 	*/
 
-	Rdisc_consumer	consumer;
-	Rdisc		rdisc(interface_index, interface_name, &consumer);
+	int			exit_status = 0;
 
-	/*
-	 * Daemonize, if applicable
-	 */
-	if (want_daemonize) {
-		// Open the PID file (open before forking so we can report errors)
-		std::ofstream	pid_out;
-		if (pid_file) {
-			pid_out.open(pid_file, std::ofstream::out | std::ofstream::trunc);
-			if (!pid_out) {
-				std::clog << argv[0] << ": " << pid_file << ": Unable to open PID file for writing" << std::endl;
+	try {
+		Rdisc_consumer	consumer;
+		Rdisc		rdisc(interface_index, interface_name, &consumer);
+
+		/*
+		 * Daemonize, if applicable
+		 */
+		if (want_daemonize) {
+			// Open the PID file (open before forking so we can report errors)
+			std::ofstream	pid_out;
+			if (pid_file) {
+				pid_out.open(pid_file, std::ofstream::out | std::ofstream::trunc);
+				if (!pid_out) {
+					std::clog << argv[0] << ": " << pid_file << ": Unable to open PID file for writing" << std::endl;
+					return 1;
+				}
+			}
+
+			pid_t		pid = fork();
+			if (pid == -1) {
+				std::perror("fork");
+				if (pid_file) {
+					unlink(pid_file);
+				}
 				return 1;
 			}
+			if (pid != 0) {
+				// exit the parent process
+				_exit(0);
+			}
+			setsid();
+
+			// Write the PID file now that we've forked
+			if (pid_out) {
+				pid_out << getpid() << '\n';
+				pid_out.close();
+			}
+
+			// dup stdin, stdout, stderr to /dev/null
+			close(0);
+			close(1);
+			close(2);
+			open("/dev/null", O_RDONLY);
+			open("/dev/null", O_WRONLY);
+			open("/dev/null", O_WRONLY);
 		}
 
-		pid_t		pid = fork();
-		if (pid == -1) {
-			std::perror("fork");
-			unlink(pid_file);
-			return 1;
-		}
-		if (pid != 0) {
-			// exit the parent process
-			return 0;
-		}
-		setsid();
-		
-		// Write the PID file now that we've forked
-		if (pid_out) {
-			pid_out << getpid() << '\n';
-			pid_out.close();
-		}
+		init_signals();
 
-		// dup stdin, stdout, stderr to /dev/null
-		close(0);
-		close(1);
-		close(2);
-		open("/dev/null", O_RDONLY);
-		open("/dev/null", O_WRONLY);
-		open("/dev/null", O_WRONLY);
+		rdisc.run(is_running);
+
+	} catch (const Rdisc::libndp_error& e) {
+		std::clog << "rdiscd[" << e.ifname << "]: " << e.where << ": libndp error " << e.error << std::endl;
+		exit_status = 1;
+	} catch (const Rdisc::system_error& e) {
+		std::clog << "rdiscd[" << e.ifname << "]: " << e.where << ": " << strerror(e.error) << std::endl;
+		exit_status = 1;
 	}
-
-	init_signals();
-
-	rdisc.run(is_running);
 
 	if (pid_file) {
 		unlink(pid_file);
 	}
 
-	return 0;
-} catch (const Rdisc::libndp_error& e) {
-	std::clog << "rdiscd[" << e.ifname << "]: " << e.where << ": libndp error " << e.error << std::endl;
-	return 1;
-} catch (const Rdisc::system_error& e) {
-	std::clog << "rdiscd[" << e.ifname << "]: " << e.where << ": " << strerror(e.error) << std::endl;
-	return 1;
+	return exit_status;
 }
