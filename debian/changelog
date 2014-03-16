@@ -1,3 +1,11 @@
+rdiscd (0.2-1) unstable; urgency=low
+
+  * New upstream release.
+  * Add iproute to Depends:
+  * ifupdown hook: wait for link local address to become non-tentative.
+
+ -- Andrew Ayer <agwa@andrewayer.name>  Sat, 15 Mar 2014 18:26:22 -0700
+
 rdiscd (0.1-1) unstable; urgency=low
 
   * Initial release.
