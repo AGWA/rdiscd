@@ -388,12 +388,14 @@ int main (int argc, char** argv)
 			pid_t		pid = fork();
 			if (pid == -1) {
 				std::perror("fork");
-				unlink(pid_file);
+				if (pid_file) {
+					unlink(pid_file);
+				}
 				return 1;
 			}
 			if (pid != 0) {
 				// exit the parent process
-				return 0;
+				_exit(0);
 			}
 			setsid();
 
