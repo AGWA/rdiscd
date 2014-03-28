@@ -1,0 +1,25 @@
+.TH "rdiscd-keygen" "8" "" "" ""
+.SH "NAME"
+.LP 
+rdiscd-keygen \- Generate a stable privacy key for rdiscd(8)
+.SH "SYNOPSIS"
+.LP 
+\fBrdiscd-keygen\fR \fIkeyfile\fP
+.SH "DESCRIPTION"
+.LP 
+\fBrdiscd-keygen\fR generates a key to be used with rdiscd(8)'s stable
+privacy mode.  The key is used to ensure an adversary cannot determine
+your host's MAC address by generating a lookup table mapping prefixes
+and MAC addresses to stable privacy interface IDs.
+.SH "COMMAND LINE"
+.LP 
+The path to key file is specified on the command line.  \fBrdiscd-keygen\fR
+will create this file.  An error will be raised if the file already exists.
+.LP
+\fBrdiscd-keygen\fR takes no other command line arguments.
+.SH "SEE ALSO"
+.LP 
+rdiscd(8), rdiscmon(8)
+.SH "AUTHOR"
+.LP 
+Andrew Ayer <agwa@andrewayer.name>

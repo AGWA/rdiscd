@@ -1,0 +1,75 @@
+.TH "rdiscd" "8" "" "" ""
+.SH "NAME"
+.LP 
+rdiscd \- IPv6 Router Discovery and SLAAC Daemon
+.SH "SYNOPSIS"
+.LP 
+\fBrdiscd\fR [\fB\-f\fR] [\fB-p\fR \fIpidfile\fR] [\fB\-i\fR \fIinterface-id\fR] [\fB-l\fR \fIinterface-id-len\fR] [\fB-m\fR \fImac-address\fR] [\fB-I\fR index|name|macaddr] [\fB-k\fR \fIkeyfile\fR] \fIinterface\fP
+.SH "DESCRIPTION"
+.LP 
+\fBrdiscd\fR is a daemon for performing IPv6 router discovery and stateless address
+autoconfiguration (SLAAC) in userspace.  It provides greater flexibility
+and more functionality than the kernel's implementation.  For example, \fBrdiscd\fR supports static
+interface IDs, where the advertised prefix is combined with a static
+suffix to form a complete address.  It also supports the draft standard
+for "stable privacy addresses" (draft-ietf-6man-stable-privacy-addresses).
+.SH "COMMAND LINE"
+.LP 
+The name of the network interface that \fBrdiscd\fR should attempt
+to configure should be specified on the command line.  Exactly one
+interface name must be specified.  If you need to manage multiple interfaces,
+you must start multiple instances of \fBrdiscd\fR.
+.LP 
+By default, \fBrdiscd\fR runs as a daemon.  To run in the foreground, pass
+the \fB\-f\fR option.
+.SH "OPTIONS"
+.TP
+.BI \-f
+Run \fBrdiscd\fR in the foreground instead of as a daemon.
+.TP
+.BI \-p \ \fIpidfile\fR
+Path to the process ID file.  If specified, \fBrdiscd\fR writes its PID to
+this file after daemonizing.  If unspecified, no PID file is created.
+.TP
+.BI \-i \ \fIinterface-id\fR
+Assign the given interface ID (i.e. the lower bits of the address). \fIinterface-id\fR can be specified as a
+literal IPv6 address suffix (e.g. '::6'), or the keyword 'stable-privacy', or the keyword 'macaddr'
+(for a traditional SLAAC address derived from your MAC address).
+.TP
+.BI \-l \ \fIinterface-id-len\fR
+Specifies the length, in bits, of the static interface ID.  Only applicable
+if a static interface ID is passed to the \-i option.  If unspecified, defaults
+to 128 minus the number of leading zero bits in the interface ID.
+.TP
+.BI \-m \ \fImac-address\fR
+Specifies the MAC address to be used when deriving the interface ID.  Only applicable
+if 'stable-privacy' or 'macaddr' is passed to the \-i option.  If unspecified,
+defaults to the MAC address of the interface.
+.TP
+.BI \-I \ \fRindex|name|macaddr
+Specifies the source of information to use for deriving
+the stable privacy interface ID.  'macaddr' (the default)
+uses the MAC address of the interface, 'name' the name
+of the interface, and 'index' the index.  'macaddr' is
+generally the best choice, but if you want the interface
+ID to remain the same even if you swap Ethernet cards,
+you should consider 'name' instead.  Only applicable if
+\'stable-privacy\' is passed to the \-i option.  If unspecified,
+defaults to \'macaddr\'.
+.TP
+.BI \-k \ \fIkeyfile\fR
+Specifies the path to the key file to use for deriving the
+stable privacy interface ID.  Only applicable if \'stable-privacy\'
+is passed to the \-i option.  If unspecified, a random key is used,
+which is generally undesirable because it means the stable privacy
+address is different every time you run rdiscd.  To generate a key, use the
+rdiscd-keygen(8) program.
+.SH "CONFORMING TO"
+.LP
+RFC 4861, RFC 4862, http://tools.ietf.org/html/draft-ietf-6man-stable-privacy-addresses-17
+.SH "SEE ALSO"
+.LP 
+rdiscd-keygen(8), rdiscmon(8)
+.SH "AUTHOR"
+.LP 
+Andrew Ayer <agwa@andrewayer.name>
