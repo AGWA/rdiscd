@@ -1,0 +1,30 @@
+.TH "rdiscmon" "8" "" "" ""
+.SH "NAME"
+.LP 
+rdiscmon \- Debug Tool for IPv6 Router Discovery
+.SH "SYNOPSIS"
+.LP 
+\fBrdiscmon\fR \fIinterface\fP
+.SH "DESCRIPTION"
+.LP 
+\fBrdiscmon\fR performs IPv6 router discovery on the given interface,
+printing the discovered information to standard out.
+.LP
+\fBrdiscmon\fR is intended as a debugging tool and should not be used
+under normal circumstances.  See rdiscd(8) for a useful implementation
+of IPv6 router discovery.
+.SH "COMMAND LINE"
+.LP 
+The name of the network interface on which \fBrdiscmon\fR performs
+router discovery should be specified on the command line.  Exactly one
+interface name must be specified.  \fBrdiscmon\fR takes no other command
+line arguments.
+.SH "CONFORMING TO"
+.LP
+RFC 4861, RFC 4862
+.SH "SEE ALSO"
+.LP 
+rdiscd(8), rdiscmon(8)
+.SH "AUTHOR"
+.LP 
+Andrew Ayer <agwa@andrewayer.name>

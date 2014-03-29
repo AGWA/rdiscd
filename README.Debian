@@ -1,0 +1,95 @@
+This document describes how to use the rdiscd Debian package (which
+can be built from the Git repo by checking out the 'debian' branch and
+running git-buildpackage).
+
+The rdiscd Debian package installs ifupdown hooks that let you easily
+configure an interface using rdiscd.  To do so, add a 'manual' inet6
+interface stanza to /etc/network/interfaces, BEFORE the corresponding
+inet stanza for the same interface, with the 'rdiscd' option set to
+'yes'.  Example:
+
+	iface eth0 inet6 manual
+		rdiscd yes
+	
+	iface eth0 inet ...
+
+By default, rdiscd assigns a "stable privacy" address using the key
+in /etc/rdiscd.key (which is randomly generated when the package is
+installed).  You can alter this behavior by adding the following rdiscd
+options to the interface stanza:
+
+	rdiscd-interface-id INTERFACE_ID
+
+		Assign the given interface ID (i.e. the lower bits
+		of the address). INTERFACE_ID can be specified as a
+		literal IPv6 address suffix (e.g. '::6'), or the keyword
+		'stable-privacy' (the default), or the keyword 'macaddr'
+		(for a traditional SLAAC address derived from your
+		MAC address).
+	
+	rdiscd-interface-id-len LENGTH
+
+		Sets the length of the literal interface ID, in bits.
+		Defaults to 128 minus the number of leading zero bits
+		in the interface ID.  Only applicable if you specify a
+		literal interface ID for rdiscd-interface-id.
+
+	rdiscd-stable-privacy-key FILENAME
+
+		Specifies the path to the key used to derive the stable
+		privacy interface ID.  Defaults to /etc/rdiscd.key.
+		If you want to use a random key every time the interface
+		starts, you can specify '/dev/urandom'.  Only applicable
+		if rdiscd-interface-id is set to 'stable-privacy'.
+
+		To generate your own key, use the rdiscd-keygen program.
+
+	rdiscd-stable-privacy-interface index|name|macaddr
+
+		Specifies the source of information to use for deriving
+		the stable privacy interface ID.  'macaddr' (the default)
+		uses the MAC address of the interface, 'name' the name
+		of the interface, and 'index' the index.  'macaddr' is
+		generally the best choice, but if you want the interface
+		ID to remain the same even if you swap Ethernet cards,
+		you should consider 'name' instead.  Only applicable if
+		rdiscd-interface-id is set to 'stable-privacy'.
+
+	rdiscd-macaddr MACADDRESS
+
+		Sets the MAC address used to derive the interface ID.
+		Defaults to the MAC address of the interface.  Only
+		applicable if rdiscd-interface-id is 'macaddr' or
+		'stable-privacy'.
+
+
+EXAMPLES
+
+Configure eth1 using DHCP for IPv4, and userspace SLAAC with stable
+privacy addresses for IPv6:
+
+	iface eth1 inet6 manual
+		rdiscd yes
+	
+	iface eth1 inet dhcp
+
+Configure eth0 using DHCP for IPv4, and userspace SLAAC with a static
+interface ID of ::6 for IPv6.  The IPv6 address will be formed by taking
+the advertised prefix and adding a suffix of ::6, with as many zeros
+inbetween as necessary to form a complete 128-bit IPv6 address:
+
+	iface eth0 inet6 manual
+		rdiscd yes
+		rdiscd-interface-id ::6
+
+	iface eth0 inet dhcp
+
+Configure eth0 using DHCP for IPv6, and userspace SLAAC with a traditional
+MAC address-derived SLAAC address for IPv6:
+
+	iface eth0 inet6 manual
+		rdiscd yes
+		rdiscd-interface-id macaddr
+
+	iface eth0 inet dhcp
+
