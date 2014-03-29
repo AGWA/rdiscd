@@ -1,3 +1,10 @@
+rdiscd (0.3-1) unstable; urgency=low
+
+  * New upstream release.
+  * Ensure ifupdown hooks run in correct order.
+
+ -- Andrew Ayer <agwa@andrewayer.name>  Fri, 28 Mar 2014 19:27:17 -0700
+
 rdiscd (0.2-1) unstable; urgency=low
 
   * New upstream release.
