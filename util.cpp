@@ -162,4 +162,14 @@ int			systemv (const char* command, const char* const* argv)
 	return status;
 }
 
+void* explicit_memset (void* s, int c, size_t n)
+{
+	volatile unsigned char* p = reinterpret_cast<unsigned char*>(s);
+
+	while (n--) {
+		*p++ = c;
+	}
+
+	return s;
+}
 

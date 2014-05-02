@@ -28,6 +28,7 @@
 
 #include <cstring>
 #include <cstddef>
+#include "util.hpp"
 
 namespace crypto {
 	template<class Hash> class Hmac {
@@ -58,11 +59,11 @@ namespace crypto {
 			}
 
 			hash.update(k_ipad, Hash::BLOCK_LENGTH);
-			std::memset(k_ipad, 0, Hash::BLOCK_LENGTH); // TODO: make sure this is not optimized away
+			explicit_memset(k_ipad, 0, Hash::BLOCK_LENGTH);
 		}
 		~Hmac ()
 		{
-			std::memset(key, 0, Hash::BLOCK_LENGTH); // TODO: make sure this is not optimized away
+			explicit_memset(key, 0, Hash::BLOCK_LENGTH);
 		}
 
 		inline void	update (const void* data, std::size_t len)
@@ -87,7 +88,7 @@ namespace crypto {
 			final_hash.update(digest, Hash::LENGTH);
 			final_hash.finish(out, out_len);
 
-			std::memset(k_opad, 0, Hash::BLOCK_LENGTH); // TODO: make sure this is not optimized away
+			explicit_memset(k_opad, 0, Hash::BLOCK_LENGTH);
 		}
 
 		static void compute (unsigned char* out, std::size_t out_len, const unsigned char* key, std::size_t key_len, const void* data, std::size_t data_len)
