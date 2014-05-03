@@ -430,7 +430,7 @@ Base_rdisc::~Base_rdisc ()
 	}
 }
 
-void Base_rdisc::run (const sig_atomic_t& is_running)
+void Base_rdisc::run (const volatile sig_atomic_t* is_running)
 {
 	// Flush any pending messages to avoid using obsolete information
 	process_events();
@@ -445,7 +445,7 @@ void Base_rdisc::run (const sig_atomic_t& is_running)
 	sigset_t	empty_sigset;
 	sigemptyset(&empty_sigset);
 
-	while (is_running) {
+	while (*is_running) {
 		time_t	now;
 		time_t	next_event;
 
@@ -477,7 +477,7 @@ void Base_rdisc::run (const sig_atomic_t& is_running)
 void Base_rdisc::run ()
 {
 	sig_atomic_t is_running = 1;
-	run(is_running);
+	run(&is_running);
 }
 
 /* Ensure the given address is masked with its prefix and that all host

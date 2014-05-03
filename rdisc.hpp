@@ -175,7 +175,7 @@ public:
 	const std::vector<Onlink_prefix>&	get_onlink_prefixes () const { return onlink_prefixes; }
 	const std::vector<Autoconf_prefix>&	get_autoconf_prefixes () const { return autoconf_prefixes; }
 
-	void					run (const sig_atomic_t& is_running);
+	void					run (const volatile sig_atomic_t* is_running);
 	void					run ();
 
 	static void				set_address_masked (struct in6_addr* dst, const struct in6_addr* src, uint8_t plen);

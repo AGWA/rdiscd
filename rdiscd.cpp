@@ -32,6 +32,8 @@
 #include <vector>
 #include <arpa/inet.h>
 
+static volatile sig_atomic_t		is_running = 1;
+
 namespace {
 	typedef crypto::Hmac<crypto::Sha256> Stable_privacy_hmac;
 
@@ -40,7 +42,6 @@ namespace {
 		INTERFACE_ID_STABLE_PRIVACY	// derive interface ID as per draft-ietf-6man-stable-privacy-addresses-17
 	};
 
-	sig_atomic_t			is_running = 1;
 	//pid_t				child_pid = -1;
 	const char*			interface_name;
 	int				interface_index = -1;
@@ -416,7 +417,7 @@ int main (int argc, char** argv)
 
 		init_signals();
 
-		rdisc.run(is_running);
+		rdisc.run(&is_running);
 
 	} catch (const Rdisc::libndp_error& e) {
 		std::clog << "rdiscd[" << e.ifname << "]: " << e.where << ": libndp error " << e.error << std::endl;
