@@ -1,6 +1,6 @@
 This document describes how to use the rdiscd Debian package (which
 can be built from the Git repo by checking out the 'debian' branch and
-running git-buildpackage).
+running `git-buildpackage -uc -us`).
 
 The rdiscd Debian package installs ifupdown hooks that let you easily
 configure an interface using rdiscd.  To do so, add a 'manual' inet6

@@ -21,8 +21,12 @@
 #include <signal.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/wait.h>
+#include <pwd.h>
+#include <grp.h>
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
@@ -30,7 +34,10 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <memory>
 #include <arpa/inet.h>
+
+static volatile sig_atomic_t		is_running = 1;
 
 namespace {
 	typedef crypto::Hmac<crypto::Sha256> Stable_privacy_hmac;
@@ -40,8 +47,6 @@ namespace {
 		INTERFACE_ID_STABLE_PRIVACY	// derive interface ID as per draft-ietf-6man-stable-privacy-addresses-17
 	};
 
-	sig_atomic_t			is_running = 1;
-	//pid_t				child_pid = -1;
 	const char*			interface_name;
 	int				interface_index = -1;
 	Interface_id_type		interface_id_type;
@@ -65,6 +70,10 @@ namespace {
 		std::clog << "Options specific to '-i stable-privacy' mode:" << std::endl;
 		std::clog << " -I index|name|macaddr  (choice of stable-privacy interface parameter)" << std::endl;
 		std::clog << " -k KEYFILE" << std::endl;
+		std::clog << "Options to enable privilege separation:" << std::endl;
+		std::clog << " -u USER_NAME" << std::endl;
+		std::clog << " -g GROUP_NAME" << std::endl;
+		std::clog << " -r CHROOT_DIRECTORY" << std::endl;
 	}
 
 	void graceful_termination_handler (int signum)
@@ -74,9 +83,6 @@ namespace {
 
 	void init_signals ()
 	{
-		signal(SIGPIPE, SIG_IGN);
-		signal(SIGCHLD, SIG_DFL);
-
 		// SIGTERM, SIGINT
 		struct sigaction	siginfo;
 		sigemptyset(&siginfo.sa_mask);
@@ -176,27 +182,165 @@ namespace {
 		}
 	};
 
-	/*
-	// receive rdisc events and proxy them via IPC to another process (for privilege separation purposes)
+	template<class T> void write_object (int fd, const T& obj)
+	{
+		const unsigned char*	p = reinterpret_cast<const unsigned char*>(&obj);
+		size_t			len = sizeof(obj);
+		while (len > 0) {
+			ssize_t		bytes_written = write(fd, p, len);
+			if (bytes_written < 0) {
+				throw Rdisc::system_error(interface_name, "write", errno); // TODO: use a better exception
+			}
+			len -= bytes_written;
+			p += bytes_written;
+		}
+	}
+	template<class T> bool read_object (int fd, T& obj)
+	{
+		unsigned char*		p = reinterpret_cast<unsigned char*>(&obj);
+		size_t			len = sizeof(obj);
+		while (len > 0) {
+			ssize_t		bytes_read = read(fd, p, len);
+			if (bytes_read == 0) {
+				return false;
+			}
+			if (bytes_read < 0) {
+				throw Rdisc::system_error(interface_name, "read", errno); // TODO: use a better exception
+			}
+			len -= bytes_read;
+			p += bytes_read;
+		}
+		return true;
+	}
+
+	// receive rdisc events and proxy them via a file descriptor to another process (for privilege separation purposes)
 	class Rdisc_consumer_proxy : public Rdisc::Consumer {
+		int		fd;
+
 	public:
+		explicit Rdisc_consumer_proxy (int arg_fd) : fd(arg_fd) { }
+
 		virtual void	dhcp_level_changed (Rdisc::Dhcp_level dhcp_level)
 		{
+			write_object<uint8_t>(fd, 0);
+			write_object(fd, dhcp_level);
 		}
 		virtual void	mtu_changed (int mtu)
 		{
+			write_object<uint8_t>(fd, 1);
+			write_object(fd, mtu);
 		}
 		virtual void	gateway_changed (const Rdisc::Gateway& gateway)
 		{
+			write_object<uint8_t>(fd, 2);
+			write_object(fd, gateway);
 		}
 		virtual void	onlink_prefix_changed (const Rdisc::Onlink_prefix& prefix)
 		{
+			write_object<uint8_t>(fd, 3);
+			write_object(fd, prefix);
 		}
 		virtual void	autoconf_prefix_changed (const Rdisc::Autoconf_prefix& prefix)
 		{
+			write_object<uint8_t>(fd, 4);
+			write_object(fd, prefix);
 		}
 	};
-	*/
+
+	// receive rdisc events from a file descriptor and proxy them to an rdisc consumer (for privilege separation purposes)
+	void run_proxy_receiver (int fd, Rdisc::Consumer& consumer, const char* pid_file)
+	{
+		uint8_t		command;
+		while (read_object(fd, command)) {
+			// TODO: use enum for commands
+			if (command == 0) {
+				Rdisc::Dhcp_level dhcp_level;
+				read_object(fd, dhcp_level);
+				consumer.dhcp_level_changed(dhcp_level);
+			} else if (command == 1) {
+				int mtu;
+				read_object(fd, mtu);
+				consumer.mtu_changed(mtu);
+			} else if (command == 2) {
+				Rdisc::Gateway gateway;
+				read_object(fd, gateway);
+				consumer.gateway_changed(gateway);
+			} else if (command == 3) {
+				Rdisc::Onlink_prefix prefix;
+				read_object(fd, prefix);
+				consumer.onlink_prefix_changed(prefix);
+			} else if (command == 4) {
+				Rdisc::Autoconf_prefix prefix;
+				read_object(fd, prefix);
+				consumer.autoconf_prefix_changed(prefix);
+			} else if (command == 255) {
+				// TODO: Think of a nicer way to handle PID removal?
+				// This is a pretty ugly violation of encapsulation.
+				if (pid_file) {
+					unlink(pid_file);
+					pid_file = NULL;
+				}
+			} else {
+				throw Rdisc::system_error(interface_name, "run_proxy_receiver", EPROTO); // TODO: use a better exception
+			}
+		}
+	}
+
+	bool drop_privileges (const char* user_name, const char* group_name, const char* chroot_directory)
+	{
+		// Resolve user and group names
+		errno = 0;
+		struct passwd*		usr = getpwnam(user_name);
+		if (!usr) {
+			if (errno) {
+				std::perror("getpwnam");
+			} else {
+				std::clog << user_name << ": No such user" << std::endl;
+			}
+			return false;
+		}
+		struct group*		grp = NULL;
+		if (group_name) {
+			errno = 0;
+			grp = getgrnam(group_name);
+			if (!grp) {
+				if (errno) {
+					std::perror("getgrnam");
+				} else {
+					std::clog << group_name << ": No such group" << std::endl;
+				}
+				return false;
+			}
+		}
+
+		// chroot (while we're still root)
+		if (chroot_directory) {
+			if (chroot(chroot_directory) == -1) {
+				std::perror(chroot_directory);
+				return false;
+			}
+			if (chdir("/") == -1) {
+				std::perror("chdir(/)");
+				return false;
+			}
+		}
+
+		// Change GID and UID
+		// If no group is specified, use primary GID of user
+		if (setgid(grp ? grp->gr_gid : usr->pw_gid) == -1) {
+			std::perror("setgid");
+			return false;
+		}
+		if (initgroups(usr->pw_name, usr->pw_gid) == -1) {
+			std::perror("initgroups");
+			return false;
+		}
+		if (setuid(usr->pw_uid) == -1) {
+			std::perror("setuid");
+			return false;
+		}
+		return true;
+	}
 }
 
 int main (int argc, char** argv)
@@ -207,9 +351,12 @@ int main (int argc, char** argv)
 	const char*	macaddr_string = NULL;
 	const char*	stable_privacy_net_iface_type = "macaddr";
 	const char*	stable_privacy_key_file = NULL;
+	const char*	user_name = NULL;
+	const char*	group_name = NULL;
+	const char*	chroot_directory = NULL;
 
 	int		flag;
-	while ((flag = getopt(argc, argv, "l:fi:I:k:m:p:")) != -1) {
+	while ((flag = getopt(argc, argv, "l:fi:I:k:m:p:u:g:r:")) != -1) {
 		switch (flag) {
 		case 'f':
 			want_daemonize = false;
@@ -236,6 +383,15 @@ int main (int argc, char** argv)
 		case 'p':
 			pid_file = optarg;
 			break;
+		case 'u':
+			user_name = optarg;
+			break;
+		case 'g':
+			group_name = optarg;
+			break;
+		case 'r':
+			chroot_directory = optarg;
+			break;
 		case ':':
 		case '?':
 			print_usage(argv[0]);
@@ -248,8 +404,8 @@ int main (int argc, char** argv)
 		print_usage(argv[0]);
 		return 2;
 	}
-	if (pid_file && !want_daemonize) {
-		std::clog << argv[0] << ": -p (pid file) and -f (don't daemonize) are mutually exclusive" << std::endl;
+	if (!user_name && (group_name || chroot_directory)) {
+		std::clog << argv[0] << ": -g (group name) and -r (chroot directory) cannot be specified unless -u (user name) is also specified" << std::endl;
 		return 2;
 	}
 
@@ -365,58 +521,136 @@ int main (int argc, char** argv)
 	std::clog << "Interface ID = " << addrstr << "; length = " << interface_id_len << std::endl;
 	*/
 
+	signal(SIGPIPE, SIG_IGN);
+	signal(SIGCHLD, SIG_DFL);
+
+	int				init_pipe[2];
+	if (want_daemonize) {
+		// Create a pipe that the daemon can use to tell its parent when it has successfully initialized.
+		if (pipe(init_pipe) == -1) {
+			std::perror("pipe");
+			return 1;
+		}
+		pid_t		child_pid = fork();
+		if (child_pid == -1) {
+			std::perror("fork");
+			return 1;
+		}
+		if (child_pid != 0) {
+			// Parent process: don't exit until daemon has successfully initialized.
+			close(init_pipe[1]);
+			char	success = 0;
+			if (read(init_pipe[0], &success, 1) == -1) {
+				std::perror("read");
+				_exit(1);
+			}
+			if (success) {
+				// Daemon has successfully initialized, so we can exit.
+				_exit(0);
+			}
+			// Daemon failed to successfully initialize.  Wait for our child and then exit with same exit code.
+			int	status;
+			if (waitpid(child_pid, &status, 0) == -1) {
+				std::perror("waitpid");
+				_exit(1);
+			}
+			if (!WIFEXITED(status)) {
+				std::clog << argv[0] << ": Process terminated uncleanly while initializing" << std::endl;
+				_exit(1);
+			}
+			_exit(WEXITSTATUS(status));
+		}
+		close(init_pipe[0]);
+		setsid();
+	}
+
+	std::auto_ptr<Rdisc::Consumer>	consumer;
+	int				proxy_pipe[2];
+	pid_t				proxy_receiver_pid = -1;
+	if (user_name) { // Privilege separation enabled
+		// Create a pipe for communicating between the unprivileged and privileged processes.
+		if (pipe(proxy_pipe) == -1) {
+			std::perror("pipe");
+			return 1;
+		}
+		consumer.reset(new Rdisc_consumer_proxy(proxy_pipe[1]));
+
+		// Fork our privileged child process.  Do this before initializing rdisc
+		// so it doesn't inherit any file descriptors or rdisc state.
+		proxy_receiver_pid = fork();
+		if (proxy_receiver_pid == -1) {
+			std::perror("fork");
+			return 1;
+		}
+		if (proxy_receiver_pid == 0) {
+			// Privileged child process
+			if (want_daemonize) {
+				close(init_pipe[1]);
+				close_standard_streams();
+			}
+			set_cloexec(proxy_pipe[0]);
+			close(proxy_pipe[1]);
+			// We should be terminated via our parent process, not directly:
+			signal(SIGINT, SIG_IGN);
+			signal(SIGTERM, SIG_IGN);
+			try {
+				Rdisc_consumer		consumer;
+				run_proxy_receiver(proxy_pipe[0], consumer, pid_file);
+			} catch (const Rdisc::system_error& e) {
+				std::clog << "rdiscd[" << e.ifname << "]: " << e.where << ": " << strerror(e.error) << std::endl;
+				_exit(1);
+			} catch (...) {
+				std::terminate();
+			}
+			close(proxy_pipe[0]);
+			_exit(0);
+		}
+		close(proxy_pipe[0]);
+	} else {
+		consumer.reset(new Rdisc_consumer);
+	}
+
 	int			exit_status = 0;
+	bool			written_pid_file = false;
 
 	try {
-		Rdisc_consumer	consumer;
-		Rdisc		rdisc(interface_index, interface_name, &consumer);
+		Rdisc		rdisc(interface_index, interface_name, consumer.get());
 
-		/*
-		 * Daemonize, if applicable
-		 */
-		if (want_daemonize) {
-			// Open the PID file (open before forking so we can report errors)
-			std::ofstream	pid_out;
-			if (pid_file) {
-				pid_out.open(pid_file, std::ofstream::out | std::ofstream::trunc);
-				if (!pid_out) {
-					std::clog << argv[0] << ": " << pid_file << ": Unable to open PID file for writing" << std::endl;
-					return 1;
-				}
+		if (pid_file) {
+			// Write the PID file:
+			std::ofstream	pid_out(pid_file);
+			if (!pid_out) {
+				std::clog << argv[0] << ": " << pid_file << ": Unable to open PID file for writing" << std::endl;
+				return 1;
 			}
+			pid_out << getpid() << '\n';
+			written_pid_file = true;
+		}
 
-			pid_t		pid = fork();
-			if (pid == -1) {
-				std::perror("fork");
-				if (pid_file) {
+		if (user_name) {
+			// TODO: use an exception to bail out here
+			if (!drop_privileges(user_name, group_name, chroot_directory)) {
+				if (written_pid_file) {
 					unlink(pid_file);
 				}
 				return 1;
 			}
-			if (pid != 0) {
-				// exit the parent process
-				_exit(0);
-			}
-			setsid();
+		}
 
-			// Write the PID file now that we've forked
-			if (pid_out) {
-				pid_out << getpid() << '\n';
-				pid_out.close();
+		if (want_daemonize) {
+			// We've successfully initialized, so tell our parent it can stop waiting for us.
+			char	success = 1;
+			if (write(init_pipe[1], &success, 1) == -1) {
+				std::perror("write");
 			}
+			close(init_pipe[1]);
 
-			// dup stdin, stdout, stderr to /dev/null
-			close(0);
-			close(1);
-			close(2);
-			open("/dev/null", O_RDONLY);
-			open("/dev/null", O_WRONLY);
-			open("/dev/null", O_WRONLY);
+			close_standard_streams();
 		}
 
 		init_signals();
 
-		rdisc.run(is_running);
+		rdisc.run(&is_running);
 
 	} catch (const Rdisc::libndp_error& e) {
 		std::clog << "rdiscd[" << e.ifname << "]: " << e.where << ": libndp error " << e.error << std::endl;
@@ -426,8 +660,19 @@ int main (int argc, char** argv)
 		exit_status = 1;
 	}
 
-	if (pid_file) {
-		unlink(pid_file);
+	if (written_pid_file) {
+		if (user_name) {
+			// Tell our privileged child to unlink the PID file (since we probably don't have permission):
+			write_object<uint8_t>(proxy_pipe[1], 255);
+		} else {
+			unlink(pid_file);
+		}
+	}
+
+	if (user_name) {
+		// Wait for our privileged child process to exit:
+		close(proxy_pipe[1]);
+		waitpid(proxy_receiver_pid, NULL, 0);
 	}
 
 	return exit_status;

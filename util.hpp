@@ -17,6 +17,7 @@
 #pragma once
 
 #include <string>
+#include <stddef.h>
 #include <arpa/inet.h>
 
 int			get_ifindex (const char* ifname);
@@ -28,3 +29,6 @@ unsigned int		count_suffix_length (const struct in6_addr& address);
 std::string		format_ipv6_address (const struct in6_addr& addr);
 std::string		format_ipv6_address (const struct in6_addr& addr, int plen);
 int			systemv (const char* command, const char* const* argv);
+void*			explicit_memset (void* s, int c, size_t n); // memset that won't be optimized away
+void			close_standard_streams ();
+int			set_cloexec (int fd);

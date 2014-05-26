@@ -25,6 +25,8 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 int get_ifindex (const char* ifname)
 {
@@ -162,4 +164,32 @@ int			systemv (const char* command, const char* const* argv)
 	return status;
 }
 
+void* explicit_memset (void* s, int c, size_t n)
+{
+	volatile unsigned char* p = reinterpret_cast<unsigned char*>(s);
 
+	while (n--) {
+		*p++ = c;
+	}
+
+	return s;
+}
+
+void	close_standard_streams ()
+{
+	close(0);
+	close(1);
+	close(2);
+	open("/dev/null", O_RDONLY);
+	open("/dev/null", O_WRONLY);
+	open("/dev/null", O_WRONLY);
+}
+
+int	set_cloexec (int fd)
+{
+	int		old_flags = fcntl(fd, F_GETFD);
+	if (old_flags == -1) {
+		return -1;
+	}
+	return fcntl(fd, F_SETFD, old_flags | FD_CLOEXEC);
+}

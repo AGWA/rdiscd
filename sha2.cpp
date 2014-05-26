@@ -25,6 +25,7 @@
  * authorization.
  */
 #include "sha2.hpp"
+#include "util.hpp"
 #include <endian.h>
 #include <cstring>
 #include <stdint.h>
@@ -462,7 +463,7 @@ SHA256Final(uint8_t digest[], SHA2_CTX *context)
 	}
 
 	/* Clean up state data: */
-	memset(context, 0, sizeof(*context)); /* TODO: make sure this is not optimized away */
+	explicit_memset(context, 0, sizeof(*context));
 	usedspace = 0;
 }
 
