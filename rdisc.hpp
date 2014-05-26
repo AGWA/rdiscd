@@ -69,10 +69,6 @@ public:
 		{
 			std::memset(&address, '\0', sizeof(address));
 		}
-
-		size_t			serialized_length () const { return sizeof(*this); }
-		void			serialize (unsigned char* out) const { serialize_simple(*this, out); }
-		bool			deserialize (const unsigned char* in, size_t len) { return deserialize_simple(*this, in, len); }
 	};
 
 	struct Onlink_prefix : Base_item {
@@ -84,10 +80,6 @@ public:
 			std::memset(&prefix, '\0', sizeof(prefix));
 			prefix_len = 0;
 		}
-
-		size_t			serialized_length () const { return sizeof(*this); }
-		void			serialize (unsigned char* out) const { serialize_simple(*this, out); }
-		bool			deserialize (const unsigned char* in, size_t len) { return deserialize_simple(*this, in, len); }
 	};
 
 	struct Autoconf_prefix : Base_item {
@@ -104,10 +96,6 @@ public:
 
 		bool			is_preferred () const { return preferred_lifetime != 0; }
 		bool			clean (time_t now, time_t* nextevent);
-
-		size_t			serialized_length () const { return sizeof(*this); }
-		void			serialize (unsigned char* out) const { serialize_simple(*this, out); }
-		bool			deserialize (const unsigned char* in, size_t len) { return deserialize_simple(*this, in, len); }
 	};
 
 private:
@@ -152,8 +140,6 @@ private:
 	void			item_changed (const Onlink_prefix& item) { onlink_prefix_changed(item); }
 	void			item_changed (const Autoconf_prefix& item) { autoconf_prefix_changed(item); }
 
-	template<class T> static void	serialize_simple (const T&, unsigned char* out);
-	template<class T> static bool	deserialize_simple (T&, const unsigned char* in, size_t len);
 protected:
 	virtual void		dhcp_level_changed (Dhcp_level) { }
 	virtual void		mtu_changed (int mtu) { }
@@ -198,19 +184,6 @@ public:
 		: ifname(_ifname), where(_where), error(_error) { }
 	};
 };
-
-template<class T> void	Base_rdisc::serialize_simple (const T& obj, unsigned char* out)
-{
-	std::memcpy(out, &obj, sizeof(obj));
-}
-template<class T> bool	Base_rdisc::deserialize_simple (T& obj, const unsigned char* in, size_t len)
-{
-	if (len == sizeof(obj)) {
-		std::memcpy(&obj, in, sizeof(obj));
-		return true;
-	}
-	return false;
-}
 
 class Rdisc : public Base_rdisc {
 public:
