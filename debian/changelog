@@ -1,3 +1,11 @@
+rdiscd (0.4-1) unstable; urgency=low
+
+  * New upstream release.
+  * Run in chroot and as rdiscd user.
+  * Remove legacy ifupdown hooks from postinst.
+
+ -- Andrew Ayer <agwa@andrewayer.name>  Mon, 26 May 2014 15:52:07 -0700
+
 rdiscd (0.3-1) unstable; urgency=low
 
   * New upstream release.
