@@ -2,6 +2,8 @@
 
 RDISCD=/usr/sbin/rdiscd
 RUNDIR=/var/run/rdiscd
+ROOTDIR=$RUNDIR/root
+RUNAS=rdiscd
 
 if [ "$ADDRFAM" = "inet6" ] && [ "$METHOD" = "manual" ] && [ "$IF_RDISCD" = "yes" ]
 then
@@ -38,7 +40,9 @@ then
 	fi
 
 	PIDFILE=$RUNDIR/$IFACE.pid
-	DAEMON_OPTS="$DAEMON_OPTS -p $PIDFILE"
+	DAEMON_OPTS="$DAEMON_OPTS -p $PIDFILE -r $ROOTDIR -u $RUNAS"
+
+	[ -d $ROOTDIR ] || mkdir -m 555 $ROOTDIR
 
 	modprobe -q net-pf-10 > /dev/null 2>&1 || true
 	echo 0 > /proc/sys/net/ipv6/conf/$IFACE/accept_ra # XXX: or should this be autoconf?

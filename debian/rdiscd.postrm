@@ -5,6 +5,8 @@ set -e
 if [ "$1" = "purge" ]
 then
 	rm -f /etc/rdiscd.key
+
+	! getent passwd rdiscd >/dev/null || deluser --quiet rdiscd
 fi
 
 #DEBHELPER#

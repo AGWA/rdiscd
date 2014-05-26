@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 9), make (>= 3.81-5), libc6-dev (>= 2.7-18), gcc (>
 
 Package: rdiscd
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, iproute
+Depends: ${shlibs:Depends}, ${misc:Depends}, iproute, adduser
 Description: IPv6 Router Discovery and SLAAC Daemon
  rdiscd is a daemon for performing IPv6 router discovery and stateless
  address autoconfiguration (SLAAC) in userspace.  It provides greater
