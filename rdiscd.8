@@ -4,7 +4,7 @@
 rdiscd \- IPv6 Router Discovery and SLAAC Daemon
 .SH "SYNOPSIS"
 .LP 
-\fBrdiscd\fR [\fB\-f\fR] [\fB-p\fR \fIpidfile\fR] [\fB\-i\fR \fIinterface-id\fR] [\fB-l\fR \fIinterface-id-len\fR] [\fB-m\fR \fImac-address\fR] [\fB-I\fR index|name|macaddr] [\fB-k\fR \fIkeyfile\fR] \fIinterface\fP
+\fBrdiscd\fR [\fB\-i\fR\~\fIinterface-id\fR] [\fB-l\fR\~\fIinterface-id-len\fR] [\fB-m\fR\~\fImac-address\fR] [\fB-I\fR\~index|name|macaddr] [\fB-k\fR\~\fIkeyfile\fR] [\fB\-f\fR] [\fB-p\fR\~\fIpidfile\fR] [\fB-u\fR\~\fIusername\fR] [\fB-g\fR\~\fIgroupname\fR] [\fB-r\fR\~\fIchroot-directory\fR] \fIinterface\fP
 .SH "DESCRIPTION"
 .LP 
 \fBrdiscd\fR is a daemon for performing IPv6 router discovery and stateless address
@@ -23,13 +23,6 @@ you must start multiple instances of \fBrdiscd\fR.
 By default, \fBrdiscd\fR runs as a daemon.  To run in the foreground, pass
 the \fB\-f\fR option.
 .SH "OPTIONS"
-.TP
-.BI \-f
-Run \fBrdiscd\fR in the foreground instead of as a daemon.
-.TP
-.BI \-p \ \fIpidfile\fR
-Path to the process ID file.  If specified, \fBrdiscd\fR writes its PID to
-this file after daemonizing.  If unspecified, no PID file is created.
 .TP
 .BI \-i \ \fIinterface-id\fR
 Assign the given interface ID (i.e. the lower bits of the address). \fIinterface-id\fR can be specified as a
@@ -64,6 +57,25 @@ is passed to the \-i option.  If unspecified, a random key is used,
 which is generally undesirable because it means the stable privacy
 address is different every time you run rdiscd.  To generate a key, use the
 rdiscd-keygen(8) program.
+.TP
+.BI \-f
+Run \fBrdiscd\fR in the foreground instead of as a daemon.
+.TP
+.BI \-p \ \fIpidfile\fR
+Path to the process ID file.  If specified, \fBrdiscd\fR writes its PID to
+this file after daemonizing.  If unspecified, no PID file is created.
+.TP
+.BI \-u \ \fIusername\fR
+Enable privilege separation and run rdiscd's unprivileged process as \fIusername\fR.
+.TP
+.BI \-g \ \fIgroupname\fR
+Run rdiscd's unprivileged process in group \fIgroupname\fR.  Only applicable if
+\-u is also specified.  Defaults to the primary group of the user specified by \-u.
+.TP
+.BI \-r \ \fIchroot-directory\fR
+Confine rdiscd's unprivileged process to the given root directory.
+\fIchroot-directory\fR should be an unwritable empty directory.
+This option is only applicable if \-u is also specified.
 .SH "CONFORMING TO"
 .LP
 RFC 4861, RFC 4862, http://tools.ietf.org/html/draft-ietf-6man-stable-privacy-addresses-17
