@@ -55,7 +55,7 @@ Specifies the path to the key file to use for deriving the
 stable privacy interface ID.  Only applicable if \'stable-privacy\'
 is passed to the \-i option.  If unspecified, a random key is used,
 which is generally undesirable because it means the stable privacy
-address is different every time you run rdiscd.  To generate a key, use the
+address is different every time you run \fBrdiscd\fR.  To generate a key, use the
 rdiscd-keygen(8) program.
 .TP
 .BI \-f
@@ -66,15 +66,15 @@ Path to the process ID file.  If specified, \fBrdiscd\fR writes its PID to
 this file after daemonizing.  If unspecified, no PID file is created.
 .TP
 .BI \-u \ \fIusername\fR
-Enable privilege separation and run rdiscd's unprivileged process as \fIusername\fR.
+Enable privilege separation and run \fBrdiscd\fR's unprivileged process as \fIusername\fR.
 .TP
 .BI \-g \ \fIgroupname\fR
-Run rdiscd's unprivileged process in group \fIgroupname\fR.  Only
+Run \fBrdiscd\fR's unprivileged process in group \fIgroupname\fR.  Only
 applicable if privilege separation is enabled by specifying the \-u
 option.  Defaults to the primary group of the user specified by \-u.
 .TP
 .BI \-r \ \fIchroot-directory\fR
-Confine rdiscd's unprivileged process to the given root directory.
+Confine \fBrdiscd\fR's unprivileged process to the given root directory.
 \fIchroot-directory\fR should be an unwritable empty directory.
 This option is only applicable if privilege separation is enabled by
 specifying the \-u option.
