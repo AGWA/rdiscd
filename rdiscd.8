@@ -69,13 +69,15 @@ this file after daemonizing.  If unspecified, no PID file is created.
 Enable privilege separation and run rdiscd's unprivileged process as \fIusername\fR.
 .TP
 .BI \-g \ \fIgroupname\fR
-Run rdiscd's unprivileged process in group \fIgroupname\fR.  Only applicable if
-\-u is also specified.  Defaults to the primary group of the user specified by \-u.
+Run rdiscd's unprivileged process in group \fIgroupname\fR.  Only
+applicable if privilege separation is enabled by specifying the \-u
+option.  Defaults to the primary group of the user specified by \-u.
 .TP
 .BI \-r \ \fIchroot-directory\fR
 Confine rdiscd's unprivileged process to the given root directory.
 \fIchroot-directory\fR should be an unwritable empty directory.
-This option is only applicable if \-u is also specified.
+This option is only applicable if privilege separation is enabled by
+specifying the \-u option.
 .SH "CONFORMING TO"
 .LP
 RFC 4861, RFC 4862, http://tools.ietf.org/html/draft-ietf-6man-stable-privacy-addresses-17
