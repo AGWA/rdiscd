@@ -6,7 +6,7 @@ address autoconfiguration (SLAAC) in userspace.  It provides greater
 flexibility and more functionality than the kernel's implementation.
 For example, rdiscd supports static interface IDs, where the advertised
 prefix is combined with a static suffix to form a complete address.
-It also supports RFC 7217 for genearting semantically opaque interface
+It also supports RFC 7217 for generating semantically opaque interface
 IDs (aka "stable privacy addresses").
 
 For more information, see <https://www.agwa.name/projects/rdiscd>.
