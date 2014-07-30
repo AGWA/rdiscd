@@ -99,8 +99,8 @@ namespace {
 	// As per http://tools.ietf.org/html/draft-ietf-6man-stable-privacy-addresses-17#section-5
 	// Note: we don't follow the algorithm exactly (e.g. we omit the DAD counter, we take bits
 	// from the PRF output in a different order), but since the draft standard lets implementations
-	// choose their own PRFs anyways, it doesn't really matter what the inputs to the PRF are, or
-	// how we use the output.
+	// choose their own PRFs anyways, it doesn't matter for standards compliance what the inputs to
+	// the PRF are, or how we use the output.
 	void	generate_stable_privacy_interface_id (struct in6_addr* out, unsigned int len, const in6_addr& prefix)
 	{
 		std::vector<unsigned char>	hmac_input(16 + stable_privacy_net_iface.size());
