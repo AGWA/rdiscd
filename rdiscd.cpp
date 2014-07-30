@@ -44,7 +44,7 @@ namespace {
 
 	enum Interface_id_type {
 		INTERFACE_ID_FIXED,		// fixed interface ID
-		INTERFACE_ID_STABLE_PRIVACY	// derive interface ID as per draft-ietf-6man-stable-privacy-addresses-17
+		INTERFACE_ID_STABLE_PRIVACY	// derive interface ID as per RFC 7217
 	};
 
 	const char*			interface_name;
@@ -96,7 +96,7 @@ namespace {
 	}
 
 
-	// As per http://tools.ietf.org/html/draft-ietf-6man-stable-privacy-addresses-17#section-5
+	// Generate a "stable privacy" interface ID as per RFC 7217 (http://tools.ietf.org/html/rfc7217).
 	// Note: we don't follow the algorithm exactly (e.g. we omit the DAD counter, we take bits
 	// from the PRF output in a different order), but since the draft standard lets implementations
 	// choose their own PRFs anyways, it doesn't matter for standards compliance what the inputs to

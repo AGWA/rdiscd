@@ -11,8 +11,9 @@ rdiscd \- IPv6 Router Discovery and SLAAC Daemon
 autoconfiguration (SLAAC) in userspace.  It provides greater flexibility
 and more functionality than the kernel's implementation.  For example, \fBrdiscd\fR supports static
 interface IDs, where the advertised prefix is combined with a static
-suffix to form a complete address.  It also supports the draft standard
-for "stable privacy addresses" (draft-ietf-6man-stable-privacy-addresses).
+suffix to form a complete address.  It also supports RFC 7217 for
+genearting semantically opaque interface IDs (aka "stable privacy
+addresses").
 .SH "COMMAND LINE"
 .LP 
 The name of the network interface that \fBrdiscd\fR should attempt
@@ -80,7 +81,7 @@ This option is only applicable if privilege separation is enabled by
 specifying the \-u option.
 .SH "CONFORMING TO"
 .LP
-RFC 4861, RFC 4862, http://tools.ietf.org/html/draft-ietf-6man-stable-privacy-addresses-17
+RFC 4861, RFC 4862, RFC 7217
 .SH "SEE ALSO"
 .LP 
 rdiscd-keygen(8), rdiscmon(8)
