@@ -410,6 +410,10 @@ int main (int argc, char** argv)
 	}
 
 	interface_name = argv[optind];
+	if (*interface_name == '\0') {
+		std::clog << argv[0] << ": Interface name can't be empty" << std::endl;
+		return 1;
+	}
 	if ((interface_index = get_ifindex(interface_name)) == -1) {
 		std::clog << argv[0] << ": " << interface_name << ": Unrecognized interface name" << std::endl;
 		return 1;
