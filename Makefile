@@ -10,7 +10,7 @@ LDFLAGS += -lrt
 
 PROGRAMS = rdiscd rdiscmon
 COMMON_OBJFILES = rdisc.o util.o
-DAEMON_OBJFILES = sha2.o
+DAEMON_OBJFILES = sha2.o rfc7217.o
 
 all: $(PROGRAMS)
 
