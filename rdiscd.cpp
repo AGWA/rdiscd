@@ -98,7 +98,7 @@ namespace {
 
 	// Generate a "stable privacy" interface ID as per RFC 7217 (http://tools.ietf.org/html/rfc7217).
 	// Note: we don't follow the algorithm exactly (e.g. we omit the DAD counter, we take bits
-	// from the PRF output in a different order), but since the draft standard lets implementations
+	// from the PRF output in a different order), but since the RFC lets implementations
 	// choose their own PRFs anyways, it doesn't matter for standards compliance what the inputs to
 	// the PRF are, or how we use the output.
 	void	generate_stable_privacy_interface_id (struct in6_addr* out, unsigned int len, const in6_addr& prefix)
