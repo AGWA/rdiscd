@@ -1,3 +1,17 @@
+rdiscd (0.5-1) unstable; urgency=low
+
+  * New upstream release.
+  * Also install rdiscd-mkaddress.
+  * Refer to RFC 7217 in description.
+  * Clean up / modernize packaging.
+    - Remove pointless Build-Depends.
+    - Upgrade to modern copyright file format.
+    - Switch to quilt source format.
+    - Use pristine-tar.
+  * ifupdown hook: read config value from file if value prefixed with '<'.
+
+ -- Andrew Ayer <agwa@andrewayer.name>  Sat, 04 Oct 2014 15:14:15 -0700
+
 rdiscd (0.4-1) unstable; urgency=low
 
   * New upstream release.
