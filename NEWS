@@ -1,0 +1,15 @@
+v0.5 (2014-10-04)
+  * Add rdiscd-mkaddress tool for generating an IPv6 address.
+  * Minor documentation improvements.
+
+v0.4 (2014-05-26)
+  * Implement privilege separation
+
+v0.3 (2014-03-28)
+  * Add documentation, man pages.
+
+v0.2 (2014-03-13)
+  * Fix bugs in daemonization.
+
+v0.1 (2014-03-15)
+  * Initial release.
