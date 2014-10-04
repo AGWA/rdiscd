@@ -5,6 +5,15 @@ RUNDIR=/var/run/rdiscd
 ROOTDIR=$RUNDIR/root
 RUNAS=rdiscd
 
+interpolate () {
+	if expr "$1" : "<" > /dev/null
+	then
+		cat < "${1#<}" || exit $?
+	else
+		printf "%s" "$1"
+	fi
+}
+
 if [ "$ADDRFAM" = "inet6" ] && [ "$METHOD" = "manual" ] && [ "$IF_RDISCD" = "yes" ]
 then
 	if [ ! -d $RUNDIR ]
@@ -18,17 +27,21 @@ then
 		IF_RDISCD_INTERFACE_ID=stable-privacy
 	fi
 
+	IF_RDISCD_INTERFACE_ID=`interpolate "$IF_RDISCD_INTERFACE_ID"`
 	DAEMON_OPTS="-i $IF_RDISCD_INTERFACE_ID"
 	if [ -n "$IF_RDISCD_INTERFACE_ID_LEN" ]
 	then
+		IF_RDISCD_INTERFACE_ID_LEN=`interpolate "$IF_RDISCD_INTERFACE_ID_LEN"`
 		DAEMON_OPTS="$DAEMON_OPTS -l $IF_RDISCD_INTERFACE_ID_LEN"
 	fi
 	if [ -n "$IF_RDISCD_MACADDR" ]
 	then
+		IF_RDISCD_MACADDR=`interpolate "$IF_RDISCD_MACADDR"`
 		DAEMON_OPTS="$DAEMON_OPTS -m $IF_RDISCD_MACADDR"
 	fi
 	if [ "$IF_RDISCD_INTERFACE_ID" = "stable-privacy" ]
 	then
+		IF_RDISCD_STABLE_PRIVACY_INTERFACE=`interpolate "$IF_RDISCD_STABLE_PRIVACY_INTERFACE"`
 		DAEMON_OPTS="$DAEMON_OPTS -I ${IF_RDISCD_STABLE_PRIVACY_INTERFACE:-macaddr}"
 		if [ -n "$IF_RDISCD_STABLE_PRIVACY_KEY" ]
 		then

@@ -62,6 +62,10 @@ options to the interface stanza:
 		applicable if rdiscd-interface-id is 'macaddr' or
 		'stable-privacy'.
 
+Any of the above options, except for rdiscd-stable-privacy-key, can
+assigned a value starting with a single < character followed by a
+filename, in which case the option's value is read from the given file.
+
 
 EXAMPLES
 
@@ -92,4 +96,11 @@ MAC address-derived SLAAC address for IPv6:
 		rdiscd-interface-id macaddr
 
 	iface eth0 inet dhcp
+
+Configure eth0 using a static interface ID that is read from
+/etc/eth0-interface-id:
+
+	iface eth0 inet6 manual
+		rdiscd yes
+		rdiscd-interface-id </etc/eth0-interface-id
 
