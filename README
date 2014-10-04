@@ -27,7 +27,7 @@ Run 'make'.
 
 CURRENT STATUS
 
-The current version of rdiscd is 0.3, released on 2014-03-28.  rdiscd aims
+The current version of rdiscd is 0.5, released on 2014-10-04.  rdiscd aims
 to be bug-free and reliable, meaning it shouldn't crash or malfunction.
 In fact, it is used in production on several servers, desktops, and laptops.
 However, it has not yet reached maturity, meaning it is not as polished or
