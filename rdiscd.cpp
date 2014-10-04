@@ -15,8 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "rdisc.hpp"
-#include "hmac.hpp"
-#include "sha2.hpp"
+#include "rfc7217.hpp"
 #include "util.hpp"
 #include <signal.h>
 #include <unistd.h>
@@ -40,11 +39,9 @@
 static volatile sig_atomic_t		is_running = 1;
 
 namespace {
-	typedef crypto::Hmac<crypto::Sha256> Stable_privacy_hmac;
-
 	enum Interface_id_type {
 		INTERFACE_ID_FIXED,		// fixed interface ID
-		INTERFACE_ID_STABLE_PRIVACY	// derive interface ID as per draft-ietf-6man-stable-privacy-addresses-17
+		INTERFACE_ID_STABLE_PRIVACY	// derive interface ID as per RFC 7217
 	};
 
 	const char*			interface_name;
@@ -96,38 +93,6 @@ namespace {
 	}
 
 
-	// As per http://tools.ietf.org/html/draft-ietf-6man-stable-privacy-addresses-17#section-5
-	// Note: we don't follow the algorithm exactly (e.g. we omit the DAD counter, we take bits
-	// from the PRF output in a different order), but since the draft standard lets implementations
-	// choose their own PRFs anyways, it doesn't really matter what the inputs to the PRF are, or
-	// how we use the output.
-	void	generate_stable_privacy_interface_id (struct in6_addr* out, unsigned int len, const in6_addr& prefix)
-	{
-		std::vector<unsigned char>	hmac_input(16 + stable_privacy_net_iface.size());
-		std::copy(&prefix.s6_addr[0], &prefix.s6_addr[16], hmac_input.begin());
-		std::copy(stable_privacy_net_iface.begin(), stable_privacy_net_iface.end(), hmac_input.begin() + 16);
-
-		unsigned char	hmac_out[Stable_privacy_hmac::LENGTH];
-		Stable_privacy_hmac::compute(hmac_out, sizeof(hmac_out),
-					     stable_privacy_key, sizeof(stable_privacy_key),
-					     &hmac_input[0], hmac_input.size());
-		if (len > 128) {
-			len = 128;
-		}
-		if (len > sizeof(hmac_out)*8) {
-			// shouldn't happen because we use SHA256, which has a 256 bit long output
-			len = sizeof(hmac_out)*8;
-		}
-		unsigned int	nbytes = len / 8;
-		unsigned int	nbits = len % 8;
-
-		std::memcpy(&out->s6_addr[16 - nbytes], hmac_out, nbytes);
-		if (nbits) {
-			out->s6_addr[16 - nbytes - 1] = (hmac_out[nbytes] & ((1 << nbits) - 1));
-		}
-	}
-
-
 	class Rdisc_consumer : public Rdisc::Consumer {
 	public:
 		virtual void	dhcp_level_changed (Rdisc::Dhcp_level dhcp_level)
@@ -164,7 +129,7 @@ namespace {
 			} else if (interface_id_type == INTERFACE_ID_STABLE_PRIVACY) {
 				unsigned int	stable_interface_id_len = 128 - prefix.prefix_len;
 				struct in6_addr	stable_interface_id;
-				generate_stable_privacy_interface_id(&stable_interface_id, stable_interface_id_len, prefix.prefix);
+				generate_stable_privacy_interface_id(&stable_interface_id, stable_interface_id_len, prefix.prefix, stable_privacy_key, stable_privacy_net_iface);
 				set_address_suffix(&address, stable_interface_id, stable_interface_id_len);
 			}
 
@@ -410,6 +375,10 @@ int main (int argc, char** argv)
 	}
 
 	interface_name = argv[optind];
+	if (*interface_name == '\0') {
+		std::clog << argv[0] << ": Interface name can't be empty" << std::endl;
+		return 1;
+	}
 	if ((interface_index = get_ifindex(interface_name)) == -1) {
 		std::clog << argv[0] << ": " << interface_name << ": Unrecognized interface name" << std::endl;
 		return 1;
