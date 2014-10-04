@@ -34,7 +34,7 @@ namespace {
 		std::clog << " -l INTERFACE_ID_LEN    (number of bits in the literal interface ID)" << std::endl;
 		std::clog << " -m MACADDRESS" << std::endl;
 		std::clog << " -d DEVICE" << std::endl;
-		std::clog << "Options specific to '-i stable-privacy' mode:" << std::endl;
+		std::clog << "Options specific to 'stable-privacy' interface IDs:" << std::endl;
 		std::clog << " -I index|name|macaddr  (choice of stable-privacy interface parameter)" << std::endl;
 		std::clog << " -k KEYFILE" << std::endl;
 	}
