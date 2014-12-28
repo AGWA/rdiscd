@@ -27,21 +27,21 @@
 #pragma once
 
 #include <cstring>
-#include <cstddef>
+#include <stddef.h>
 #include "util.hpp"
 
 namespace crypto {
 	template<class Hash> class Hmac {
 		Hash		hash;
 		unsigned char	key[Hash::BLOCK_LENGTH];
-		std::size_t	key_len;
+		size_t		key_len;
 	public:
 		enum {
 			LENGTH = Hash::LENGTH,
 			KEY_LENGTH = Hash::BLOCK_LENGTH
 		};
 
-		Hmac (const unsigned char* arg_key, std::size_t arg_key_len =KEY_LENGTH)
+		Hmac (const unsigned char* arg_key, size_t arg_key_len =KEY_LENGTH)
 		{
 			if (arg_key_len > Hash::BLOCK_LENGTH) {
 				Hash::compute(key, Hash::BLOCK_LENGTH, arg_key, arg_key_len);
@@ -54,7 +54,7 @@ namespace crypto {
 			unsigned char	k_ipad[Hash::BLOCK_LENGTH];
 			std::memset(k_ipad, 0, Hash::BLOCK_LENGTH);
 			std::memcpy(k_ipad, key, key_len);
-			for (std::size_t i = 0; i < Hash::BLOCK_LENGTH; ++i) {
+			for (size_t i = 0; i < Hash::BLOCK_LENGTH; ++i) {
 				k_ipad[i] ^= 0x36;
 			}
 
@@ -66,12 +66,12 @@ namespace crypto {
 			explicit_memset(key, 0, Hash::BLOCK_LENGTH);
 		}
 
-		inline void	update (const void* data, std::size_t len)
+		inline void	update (const void* data, size_t len)
 		{
 			hash.update(data, len);
 		}
 
-		void		finish (unsigned char* out, std::size_t out_len =LENGTH)
+		void		finish (unsigned char* out, size_t out_len =LENGTH)
 		{
 			unsigned char	digest[Hash::LENGTH];
 			hash.finish(digest);
@@ -79,7 +79,7 @@ namespace crypto {
 			unsigned char	k_opad[Hash::BLOCK_LENGTH];
 			std::memset(k_opad, 0, Hash::BLOCK_LENGTH);
 			std::memcpy(k_opad, key, key_len);
-			for (std::size_t i = 0; i < Hash::BLOCK_LENGTH; ++i) {
+			for (size_t i = 0; i < Hash::BLOCK_LENGTH; ++i) {
 				k_opad[i] ^= 0x5c;
 			}
 
@@ -91,7 +91,7 @@ namespace crypto {
 			explicit_memset(k_opad, 0, Hash::BLOCK_LENGTH);
 		}
 
-		static void compute (unsigned char* out, std::size_t out_len, const unsigned char* key, std::size_t key_len, const void* data, std::size_t data_len)
+		static void compute (unsigned char* out, size_t out_len, const unsigned char* key, size_t key_len, const void* data, size_t data_len)
 		{
 			Hmac		hmac(key, key_len);
 			hmac.update(data, data_len);
