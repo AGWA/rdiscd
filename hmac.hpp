@@ -59,11 +59,11 @@ namespace crypto {
 			}
 
 			hash.update(k_ipad, Hash::BLOCK_LENGTH);
-			explicit_memset(k_ipad, 0, Hash::BLOCK_LENGTH);
+			explicit_memzero(k_ipad, Hash::BLOCK_LENGTH);
 		}
 		~Hmac ()
 		{
-			explicit_memset(key, 0, Hash::BLOCK_LENGTH);
+			explicit_memzero(key, Hash::BLOCK_LENGTH);
 		}
 
 		inline void	update (const void* data, size_t len)
@@ -88,7 +88,7 @@ namespace crypto {
 			final_hash.update(digest, Hash::LENGTH);
 			final_hash.finish(out, out_len);
 
-			explicit_memset(k_opad, 0, Hash::BLOCK_LENGTH);
+			explicit_memzero(k_opad, Hash::BLOCK_LENGTH);
 		}
 
 		static void compute (unsigned char* out, size_t out_len, const unsigned char* key, size_t key_len, const void* data, size_t data_len)

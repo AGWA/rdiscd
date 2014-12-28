@@ -164,15 +164,25 @@ int			systemv (const char* command, const char* const* argv)
 	return status;
 }
 
-void* explicit_memset (void* s, int c, size_t n)
+void explicit_memzero (void* s, size_t n)
 {
 	volatile unsigned char* p = reinterpret_cast<unsigned char*>(s);
 
 	while (n--) {
-		*p++ = c;
+		*p++ = 0;
 	}
+}
 
-	return s;
+void store_be64 (unsigned char* p, uint64_t i)
+{
+	p[7] = i; i >>= 8;
+	p[6] = i; i >>= 8;
+	p[5] = i; i >>= 8;
+	p[4] = i; i >>= 8;
+	p[3] = i; i >>= 8;
+	p[2] = i; i >>= 8;
+	p[1] = i; i >>= 8;
+	p[0] = i;
 }
 
 void	close_standard_streams ()

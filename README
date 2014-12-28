@@ -71,7 +71,7 @@ rdiscd was written by Andrew Ayer <agwa at andrewayer dot name>.
 rdiscd is inspired by the userspace SLAAC implementation in NetworkManager,
 and some code is based on the code found therein.
 
-rdiscd contains a SHA-2 implementation by Aaron D. Gifford.
+rdiscd contains a SHA-256 implementation by Colin Percival.
 
 rdiscd would not be possible without libndp, by Jiri Pirko.
 
