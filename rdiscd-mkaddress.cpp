@@ -193,7 +193,9 @@ int main (int argc, char** argv)
 				return 1;
 			}
 			stable_privacy_net_iface.resize(std::strlen(interface_name));
-			std::memcpy(&stable_privacy_net_iface[0], interface_name, stable_privacy_net_iface.size());
+			if (!stable_privacy_net_iface.empty()) {
+				std::memcpy(&stable_privacy_net_iface[0], interface_name, stable_privacy_net_iface.size());
+			}
 		} else {
 			std::clog << argv[0] << ": -I must be macaddr, index, or name" << std::endl;
 			return 2;
