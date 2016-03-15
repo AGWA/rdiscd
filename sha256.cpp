@@ -90,10 +90,8 @@ void Sha256_state::write (unsigned char* out, size_t out_len)
  * SUCH DAMAGE.
  */
 static inline uint32_t
-sha256_be32dec(const void *pp)
+sha256_be32dec(const unsigned char *p)
 {
-	const uint8_t *p = (uint8_t const *)pp;
-
 	return  ((uint32_t)(p[3]) + ((uint32_t)(p[2]) << 8) +
 		((uint32_t)(p[1]) << 16) + ((uint32_t)(p[0]) << 24));
 }
