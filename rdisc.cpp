@@ -493,7 +493,7 @@ void Base_rdisc::set_address_masked (struct in6_addr* dst, const struct in6_addr
 		*dst = *src;
 	} else {
 		std::memset(dst, '\0', sizeof(*dst));
-		std::memcpy(dst, src, nbytes);
+		std::memcpy(dst->s6_addr, src->s6_addr, nbytes);
 		dst->s6_addr[nbytes] = (src->s6_addr[nbytes] & (0xFF << (8 - nbits)));
 	}
 }
