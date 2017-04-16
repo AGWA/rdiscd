@@ -285,8 +285,7 @@ bool Base_rdisc::send_rs ()
 	if (enable_debug) { std::clog << "rdisc (" << ifname << "): sending router solicitation" << std::endl; }
 
 	if (int error = ndp_msg_send(ndp, msg)) {
-		ndp_msg_destroy(msg);
-		throw libndp_error(ifname, "Cannot send router solicitation (ndp_msg_send)", error);
+		if (enable_debug) { std::clog << "rdisc (" << ifname << "): error sending router solicitation: ndp_msg_send: " << error << std::endl; }
 	}
 
 	ndp_msg_destroy(msg);
