@@ -11,14 +11,14 @@ Copyright: Copyright (C) 2014 Andrew Ayer
            Copyright (C) 2013 Red Hat, Inc.
 License: GPL-3+
 
-Files: hmac.hpp sha2.hpp
+Files: blockhash.hpp hmac.hpp sha256.hpp
 Copyright: Copyright (C) 2014 Andrew Ayer
 License: X11
 
-Files: sha2.cpp
-Copyright: Copyright (C) 2013 Andrew Ayer
-           Copyright (C) 2000-2001 Aaron D. Gifford
-License: X11 and BSD-3-clause
+Files: sha256.cpp
+Copyright: Copyright (C) 2014 Andrew Ayer
+           Copyright 2005,2007,2009 Colin Percival
+License: X11 and BSD-2-clause
 
 License: GPL-3+
  This program is free software: you can redistribute it and/or modify
@@ -61,7 +61,7 @@ License: X11
  sale, use or other dealings in this Software without prior written
  authorization.
 
-License: BSD-3-clause
+License: BSD-2-clause
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -70,9 +70,6 @@ License: BSD-3-clause
  2. Redistributions in binary form must reproduce the above copyright
     notice, this list of conditions and the following disclaimer in the
     documentation and/or other materials provided with the distribution.
- 3. Neither the name of the copyright holder nor the names of contributors
-    may be used to endorse or promote products derived from this software
-    without specific prior written permission.
  .
  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTOR(S) ``AS IS'' AND
  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
