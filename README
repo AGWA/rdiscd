@@ -16,13 +16,32 @@ DEPENDENCIES
 
 libndp v1.2 or higher <http://libndp.org/>
 
-To build you need a C++ compiler (such as gcc) and development
-headers for libndp.
+To build rdiscd, you need:
+
+  * GNU Make
+  * A C++ compiler supporting C++11 (e.g. GCC 4.7 or higher)
+  * Development files for libndp
 
 
 BUILDING RDISCD
 
-Run 'make'.
+Run 'make' and 'make install'.
+
+The following Makefile variables can be passed on the command line to
+'make' and 'make install':
+
+	PREFIX=/path	Install to given path (default: /usr/local)
+
+	ENABLE_MAN=yes|no
+			Whether to build/install the man page (default: yes)
+
+	DESTDIR=/path	Stage installed files under the given path
+			instead of installing directly to the filesystem
+			(intended for package building)
+
+Example:
+	make PREFIX=/usr
+	make install PREFIX=/usr DESTDIR=/tmp/pkgroot
 
 
 CURRENT STATUS
