@@ -1,6 +1,6 @@
 v0.6 (2017-04-16)
-  * Don't treat failure to send a router solicitation as a fatal error
-  * Code quality improvements
+  * Don't treat failure to send a router solicitation as a fatal error.
+  * Code quality and build system improvements.
 
 v0.5 (2014-10-04)
   * Add rdiscd-mkaddress tool for generating an IPv6 address.
