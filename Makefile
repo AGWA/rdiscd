@@ -6,6 +6,7 @@ BINDIR ?= $(PREFIX)/bin
 SBINDIR ?= $(PREFIX)/sbin
 MANDIR ?= $(PREFIX)/share/man
 ENABLE_MAN ?= yes
+ENABLE_IFUPDOWN ?= no
 
 # libndp
 LIBNDP_CFLAGS ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --cflags libndp)
@@ -28,7 +29,9 @@ all: build
 #
 BUILD_MAN_TARGETS-yes = build-man
 BUILD_MAN_TARGETS-no =
-BUILD_TARGETS := build-bin $(BUILD_MAN_TARGETS-$(ENABLE_MAN))
+BUILD_IFUPDOWN_TARGETS-yes = build-ifupdown
+BUILD_IFUPDOWN_TARGETS-no =
+BUILD_TARGETS := build-bin $(BUILD_MAN_TARGETS-$(ENABLE_MAN)) $(BUILD_IFUPDOWN_TARGETS-$(ENABLE_IFUPDOWN))
 
 build: $(BUILD_TARGETS)
 
@@ -45,12 +48,16 @@ rdiscmon: rdiscmon.o $(COMMON_OBJFILES)
 
 build-man:
 
+build-ifupdown:
+
 #
 # Clean
 #
 CLEAN_MAN_TARGETS-yes = clean-man
 CLEAN_MAN_TARGETS-no =
-CLEAN_TARGETS := clean-bin $(CLEAN_MAN_TARGETS-$(ENABLE_MAN))
+CLEAN_IFUPDOWN_TARGETS-yes = clean-ifupdown
+CLEAN_IFUPDOWN_TARGETS-no =
+CLEAN_TARGETS := clean-bin $(CLEAN_MAN_TARGETS-$(ENABLE_MAN)) $(CLEAN_IFUPDOWN_TARGETS-$(ENABLE_IFUPDOWN))
 
 clean: $(CLEAN_TARGETS)
 
@@ -59,12 +66,16 @@ clean-bin:
 
 clean-man:
 
+clean-ifupdown:
+
 #
 # Install
 #
 INSTALL_MAN_TARGETS-yes = install-man
 INSTALL_MAN_TARGETS-no =
-INSTALL_TARGETS := install-bin $(INSTALL_MAN_TARGETS-$(ENABLE_MAN))
+INSTALL_IFUPDOWN_TARGETS-yes = install-ifupdown
+INSTALL_IFUPDOWN_TARGETS-no =
+INSTALL_TARGETS := install-bin $(INSTALL_MAN_TARGETS-$(ENABLE_MAN)) $(INSTALL_IFUPDOWN_TARGETS-$(ENABLE_IFUPDOWN))
 
 install: $(INSTALL_TARGETS)
 
@@ -81,5 +92,11 @@ install-man: build-man
 	install -m 644 rdiscd.8 $(DESTDIR)$(MANDIR)/man8/
 	install -m 644 rdiscd-keygen.8 $(DESTDIR)$(MANDIR)/man8/
 	install -m 644 rdiscmon.8 $(DESTDIR)$(MANDIR)/man8/
+
+install-ifupdown: build-ifupdown
+	install -d $(DESTDIR)/etc/network/if-post-down.d
+	install -m 755 rdiscd.if-post-down $(DESTDIR)/etc/network/if-post-down.d/000-rdiscd
+	install -d $(DESTDIR)/etc/network/if-pre-up.d
+	install -m 755 rdiscd.if-pre-up $(DESTDIR)/etc/network/if-pre-up.d/zzz-rdiscd
 
 .PHONY: all build clean install

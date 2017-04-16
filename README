@@ -35,6 +35,9 @@ The following Makefile variables can be passed on the command line to
 	ENABLE_MAN=yes|no
 			Whether to build/install the man page (default: yes)
 
+	ENABLE_IFUPDOWN=yes|no
+			Whether to install ifupdown hooks (default: no)
+
 	DESTDIR=/path	Stage installed files under the given path
 			instead of installing directly to the filesystem
 			(intended for package building)
