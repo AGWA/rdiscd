@@ -99,4 +99,7 @@ install-ifupdown: build-ifupdown
 	install -d $(DESTDIR)/etc/network/if-pre-up.d
 	install -m 755 rdiscd.if-pre-up $(DESTDIR)/etc/network/if-pre-up.d/zzz-rdiscd
 
-.PHONY: all build clean install
+.PHONY: all \
+	build build-bin build-man build-ifupdown \
+	clean clean-bin clean-man clean-ifupdown \
+	install install-bin install-man install-ifupdown
