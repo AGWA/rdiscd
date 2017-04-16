@@ -285,8 +285,7 @@ bool Base_rdisc::send_rs ()
 	if (enable_debug) { std::clog << "rdisc (" << ifname << "): sending router solicitation" << std::endl; }
 
 	if (int error = ndp_msg_send(ndp, msg)) {
-		ndp_msg_destroy(msg);
-		throw libndp_error(ifname, "Cannot send router solicitation (ndp_msg_send)", error);
+		if (enable_debug) { std::clog << "rdisc (" << ifname << "): error sending router solicitation: ndp_msg_send: " << error << std::endl; }
 	}
 
 	ndp_msg_destroy(msg);
@@ -493,7 +492,7 @@ void Base_rdisc::set_address_masked (struct in6_addr* dst, const struct in6_addr
 		*dst = *src;
 	} else {
 		std::memset(dst, '\0', sizeof(*dst));
-		std::memcpy(dst, src, nbytes);
+		std::memcpy(dst->s6_addr, src->s6_addr, nbytes);
 		dst->s6_addr[nbytes] = (src->s6_addr[nbytes] & (0xFF << (8 - nbits)));
 	}
 }

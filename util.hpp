@@ -29,6 +29,7 @@ unsigned int		count_suffix_length (const struct in6_addr& address);
 std::string		format_ipv6_address (const struct in6_addr& addr);
 std::string		format_ipv6_address (const struct in6_addr& addr, int plen);
 int			systemv (const char* command, const char* const* argv);
-void*			explicit_memset (void* s, int c, size_t n); // memset that won't be optimized away
+void			explicit_memzero (void* s, size_t n); // zero memory that won't be optimized away
+void			store_be64 (unsigned char* p, uint64_t i);
 void			close_standard_streams ();
 int			set_cloexec (int fd);

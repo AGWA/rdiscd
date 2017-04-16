@@ -16,18 +16,40 @@ DEPENDENCIES
 
 libndp v1.2 or higher <http://libndp.org/>
 
-To build you need a C++ compiler (such as gcc) and development
-headers for libndp.
+To build rdiscd, you need:
+
+  * GNU Make
+  * A C++ compiler supporting C++11 (e.g. GCC 4.7 or higher)
+  * Development files for libndp
 
 
 BUILDING RDISCD
 
-Run 'make'.
+Run 'make' and 'make install'.
+
+The following Makefile variables can be passed on the command line to
+'make' and 'make install':
+
+	PREFIX=/path	Install to given path (default: /usr/local)
+
+	ENABLE_MAN=yes|no
+			Whether to build/install the man page (default: yes)
+
+	ENABLE_IFUPDOWN=yes|no
+			Whether to install ifupdown hooks (default: no)
+
+	DESTDIR=/path	Stage installed files under the given path
+			instead of installing directly to the filesystem
+			(intended for package building)
+
+Example:
+	make PREFIX=/usr
+	make install PREFIX=/usr DESTDIR=/tmp/pkgroot
 
 
 CURRENT STATUS
 
-The current version of rdiscd is 0.3, released on 2014-03-28.  rdiscd aims
+The current version of rdiscd is 0.6, released on 2017-04-16.  rdiscd aims
 to be bug-free and reliable, meaning it shouldn't crash or malfunction.
 In fact, it is used in production on several servers, desktops, and laptops.
 However, it has not yet reached maturity, meaning it is not as polished or
@@ -43,8 +65,8 @@ Git repository:	https://agwa.name/git/rdiscd.git
 		https://github.com/AGWA/rdiscd.git (mirror)
 GitHub project:	https://github.com/AGWA/rdiscd
 Issue tracker:	https://github.com/AGWA/rdiscd/issues
-Announce list:	http://lists.cloudmutt.com/mailman/listinfo/rdiscd-announce
-Discuss list:	http://lists.cloudmutt.com/mailman/listinfo/rdiscd-discuss
+Announce list:	https://lists.cloudmutt.com/mailman/listinfo/rdiscd-announce
+Discuss list:	https://lists.cloudmutt.com/mailman/listinfo/rdiscd-discuss
 
 For help or questions, send mail to the discuss list
 <rdiscd-discuss@lists.cloudmutt.com>.  To report a bug or make a feature
@@ -71,7 +93,7 @@ rdiscd was written by Andrew Ayer <agwa at andrewayer dot name>.
 rdiscd is inspired by the userspace SLAAC implementation in NetworkManager,
 and some code is based on the code found therein.
 
-rdiscd contains a SHA-2 implementation by Aaron D. Gifford.
+rdiscd contains a SHA-256 implementation by Colin Percival.
 
 rdiscd would not be possible without libndp, by Jiri Pirko.
 
@@ -80,8 +102,8 @@ LEGALESE
 
 Copyright (C) 2014 Andrew Ayer
 
-Licensed predominantly under the GPLv3.  May also contain code licensed
-under less restrictive GPL-compatible licenses.
+Licensed predominantly under the GPLv3.  Also contains code licensed
+under more permissive GPL-compatible licenses.
 
 rdiscd is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or

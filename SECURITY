@@ -1,0 +1,25 @@
+rdiscd has been designed and implemented with security in mind.  Safe,
+high-level C++ constructs are used whenever possible to reduce the chance
+of programmer error.  Low-level, potentially-unsafe code is kept to a
+minimum and written very carefully when it's necessary.  In addition,
+I have audited the code of libndp, the NDP library used by rdiscd. I
+found one vulnerability, CVE-2014-3554, which is fixed as of libndp 1.4.
+
+By necessity, rdiscd requires privilege, as it configures the system's
+networking and uses raw sockets.  To mitigate the potential impact of
+a security vulnerability in rdiscd or libndp, rdiscd supports privilege
+separation.  The process that handles NDP packets from the network runs
+as an unprivileged user in an empty and unwritable root directory, and
+passes configuration information to the privileged process over a UNIX
+domain socket using a simple and easily-audited protocol.  The privileged
+process never talks directly to the network.
+
+To use privilege separation, you must pass the name of an unprivileged
+user to the -u option (you should use a dedicated user for rdiscd),
+and a root directory to the -r option (you should use an empty and
+unwritable directory).  Privilege separation is enabled by default in
+the Debian package, with no manual configuration required.
+
+If you find a security vulnerability in rdiscd, please contact me
+privately at agwa@andrewayer.name, optionally using my PGP key,
+EF5D84C1838F2EB6D8968C0410378EFC2080080C.

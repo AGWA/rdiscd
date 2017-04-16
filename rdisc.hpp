@@ -153,7 +153,7 @@ public:
 
 	void					set_enable_debug (bool x) { enable_debug = x; }
 
-	const int				get_ifindex () const { return ifindex; }
+	int					get_ifindex () const { return ifindex; }
 	const char*				get_ifname () const { return ifname.c_str(); }
 	Dhcp_level				get_dhcp_level () const { return dhcp_level; }
 	int					get_mtu () const { return mtu; }

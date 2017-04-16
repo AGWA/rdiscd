@@ -16,7 +16,7 @@
  */
 #pragma once
 
-#include "sha2.hpp"
+#include "sha256.hpp"
 #include "hmac.hpp"
 #include <arpa/inet.h>
 #include <vector>

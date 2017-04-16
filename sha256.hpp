@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Andrew Ayer
+ * Copyright (C) 2014 Andrew Ayer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -24,52 +24,43 @@
  * sale, use or other dealings in this Software without prior written
  * authorization.
  */
+
 #pragma once
 
+#include "blockhash.hpp"
+#include "util.hpp"
+#include <algorithm>
 #include <stdint.h>
-#include <cstddef>
+#include <stddef.h>
 
 namespace crypto {
-	class Sha2_internals {
-	public:
-		struct CTX {
-			union {
-				uint32_t	st32[8];
-				uint64_t	st64[8];
-			} state;
-			uint64_t		bitcount[2];
-			uint8_t		buffer[128];
-		};
-
-	protected:
-		CTX		ctx;
-	};
-
-	class Sha256 : private Sha2_internals {
+	class Sha256_state {
 	public:
 		enum {
-			LENGTH = 32,
-			BLOCK_LENGTH = 64
+			LENGTH = 32U,
+			BLOCK_LENGTH = 64U
 		};
 
-		Sha256 ();
-		~Sha256 ();
-		void update (const void* data, std::size_t len);
-		void finish (unsigned char* out);
-		void finish (unsigned char* out, std::size_t out_len);
+		Sha256_state (const uint32_t* initial_state =sha256_initial_state);
+		~Sha256_state ();
+		void transform (const unsigned char*);
+		void write (unsigned char* out, size_t out_len =LENGTH);
 
-		static void compute (unsigned char* out, std::size_t out_len, const void* data, std::size_t data_len)
+		template<class Hash> static void pad (Hash& hash)
 		{
-			Sha256 hash;
-			hash.update(data, data_len);
-			hash.finish(out, out_len);
+			unsigned char		length_pad[8];
+			store_be64(length_pad, hash.get_count() << 3);
+			hash.update("\200", 1);			// Append 0x80
+			while (hash.get_count() % 64 != 56) {	// Append zeros until current block is 56 bytes long
+				hash.update("\0", 1);
+			}
+			hash.update(length_pad, 8);		// Append 8 byte length, which should form complete block
 		}
 
-		static void compute (unsigned char* out, const void* data, std::size_t data_len)
-		{
-			Sha256 hash;
-			hash.update(data, data_len);
-			hash.finish(out);
-		}
+	private:
+		uint32_t			state[8];
+		static const uint32_t		sha256_initial_state[8];
 	};
+
+	typedef Block_hash<Sha256_state> Sha256;
 }

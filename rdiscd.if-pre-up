@@ -1,0 +1,83 @@
+#!/bin/sh
+
+#
+# Copyright 2014 Andrew Ayer
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+RDISCD=/usr/sbin/rdiscd
+RUNDIR=/var/run/rdiscd
+ROOTDIR=$RUNDIR/root
+RUNAS=rdiscd
+
+interpolate () {
+	if expr "$1" : "<" > /dev/null
+	then
+		cat < "${1#<}" || exit $?
+	else
+		printf "%s" "$1"
+	fi
+}
+
+if [ "$ADDRFAM" = "inet6" ] && [ "$METHOD" = "manual" ] && [ "$IF_RDISCD" = "yes" ]
+then
+	if [ ! -d $RUNDIR ]
+	then
+		mkdir -p $RUNDIR
+		chmod 770 $RUNDIR
+	fi
+
+	if [ -z "$IF_RDISCD_INTERFACE_ID" ]
+	then
+		IF_RDISCD_INTERFACE_ID=stable-privacy
+	fi
+
+	IF_RDISCD_INTERFACE_ID=`interpolate "$IF_RDISCD_INTERFACE_ID"`
+	DAEMON_OPTS="-i $IF_RDISCD_INTERFACE_ID"
+	if [ -n "$IF_RDISCD_INTERFACE_ID_LEN" ]
+	then
+		IF_RDISCD_INTERFACE_ID_LEN=`interpolate "$IF_RDISCD_INTERFACE_ID_LEN"`
+		DAEMON_OPTS="$DAEMON_OPTS -l $IF_RDISCD_INTERFACE_ID_LEN"
+	fi
+	if [ -n "$IF_RDISCD_MACADDR" ]
+	then
+		IF_RDISCD_MACADDR=`interpolate "$IF_RDISCD_MACADDR"`
+		DAEMON_OPTS="$DAEMON_OPTS -m $IF_RDISCD_MACADDR"
+	fi
+	if [ "$IF_RDISCD_INTERFACE_ID" = "stable-privacy" ]
+	then
+		IF_RDISCD_STABLE_PRIVACY_INTERFACE=`interpolate "$IF_RDISCD_STABLE_PRIVACY_INTERFACE"`
+		DAEMON_OPTS="$DAEMON_OPTS -I ${IF_RDISCD_STABLE_PRIVACY_INTERFACE:-macaddr}"
+		if [ -n "$IF_RDISCD_STABLE_PRIVACY_KEY" ]
+		then
+			DAEMON_OPTS="$DAEMON_OPTS -k $IF_RDISCD_STABLE_PRIVACY_KEY"
+		elif [ -f /etc/rdiscd.key ]
+		then
+			DAEMON_OPTS="$DAEMON_OPTS -k /etc/rdiscd.key"
+		fi
+	fi
+
+	PIDFILE=$RUNDIR/$IFACE.pid
+	DAEMON_OPTS="$DAEMON_OPTS -p $PIDFILE -r $ROOTDIR -u $RUNAS"
+
+	[ -d $ROOTDIR ] || mkdir -m 555 $ROOTDIR
+
+	modprobe -q net-pf-10 > /dev/null 2>&1 || true
+	echo 0 > /proc/sys/net/ipv6/conf/$IFACE/accept_ra # XXX: or should this be autoconf?
+	ip link set dev $IFACE up
+	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $RDISCD -- $DAEMON_OPTS $IFACE
+fi
+
+exit 0
