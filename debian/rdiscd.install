@@ -1,4 +1,0 @@
-rdiscd usr/sbin
-rdiscd-keygen usr/sbin
-rdiscd-mkaddress usr/bin
-rdiscmon usr/sbin

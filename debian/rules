@@ -1,12 +1,12 @@
 #!/usr/bin/make -f
 
+ifneq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
+export CXX = $(DEB_HOST_GNU_TYPE)-g++
+endif
+
+export PREFIX=/usr
+export ENABLE_MAN=yes
+export ENABLE_IFUPDOWN=yes
+
 %:
 	dh  $@
-
-override_dh_auto_install:
-
-override_dh_installifupdown:
-	install -d debian/rdiscd/etc/network/if-post-down.d
-	install -m 755 debian/rdiscd.if-post-down debian/rdiscd/etc/network/if-post-down.d/000-rdiscd
-	install -d debian/rdiscd/etc/network/if-pre-up.d
-	install -m 755 debian/rdiscd.if-pre-up debian/rdiscd/etc/network/if-pre-up.d/zzz-rdiscd
