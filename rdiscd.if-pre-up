@@ -77,17 +77,6 @@ then
 	modprobe -q net-pf-10 > /dev/null 2>&1 || true
 	echo 0 > /proc/sys/net/ipv6/conf/$IFACE/accept_ra # XXX: or should this be autoconf?
 	ip link set dev $IFACE up
-	# Wait until we have a link local address
-	while [ -z "`ip -6 addr show dev $IFACE scope link`" ]
-	do
-		sleep 1
-	done
-	# Now wait until the link local address is not tentative
-	while [ -n "`ip -6 addr show dev $IFACE scope link tentative`" ]
-	do
-		sleep 1
-	done
-	# Only now that the interface has a non-tentative link local address can we successfully start rdiscd.
 	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $RDISCD -- $DAEMON_OPTS $IFACE
 fi
 
