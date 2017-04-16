@@ -1,3 +1,10 @@
+rdiscd (0.6-1) unstable; urgency=low
+
+  * New upstream release.
+  * Simplified package building.
+
+ -- Andrew Ayer <agwa@andrewayer.name>  Sun, 16 Apr 2017 13:57:53 -0700
+
 rdiscd (0.5-1) unstable; urgency=low
 
   * New upstream release.
