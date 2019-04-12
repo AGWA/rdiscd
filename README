@@ -55,11 +55,13 @@ CURRENT STATUS
 
 The current version of rdiscd is 0.6, released on 2017-04-16.  rdiscd aims
 to be bug-free and reliable, meaning it shouldn't crash or malfunction.
-In fact, it is used in production on several servers, desktops, and laptops.
-However, it has not yet reached maturity, meaning it is not as polished or
-featureful as it should be.  It contains basic support for autoconfiguring
-addresses and the default gateway, but does not yet support route or
-DNS server advertisements.
+It has been successfully used in production on servers, desktops,
+and laptops.  It contains basic support for autoconfiguring addresses
+and the default gateway, but does not support route or DNS server
+advertisements.
+
+As of 2019, rdiscd is no longer under active development.  It will receive
+critical bug fixes but new features are unlikely to be added.
 
 
 PROJECT RESOURCES
