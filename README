@@ -9,7 +9,11 @@ prefix is combined with a static suffix to form a complete address.
 It also supports RFC 7217 for generating semantically opaque interface
 IDs (aka "stable privacy addresses").
 
-For more information, see <https://www.agwa.name/projects/rdiscd>.
+
+DOWNLOADING RDISCD
+
+Source Tarball: <https://www.agwa.name/projects/downloads/rdiscd-0.6.tar.gz>
+ PGP Signature: <https://www.agwa.name/projects/downloads/rdiscd-0.6.tar.gz.asc>
 
 
 DEPENDENCIES
@@ -61,6 +65,7 @@ DNS server advertisements.
 PROJECT RESOURCES
 
 Home page:	https://agwa.name/projects/rdiscd
+Downloads:      https://agwa.name/projects/rdiscd/downloads
 Git repository:	https://agwa.name/git/rdiscd.git
 		https://github.com/AGWA/rdiscd.git (mirror)
 GitHub project:	https://github.com/AGWA/rdiscd
