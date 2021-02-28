@@ -20,6 +20,7 @@ and a root directory to the -r option (you should use an empty and
 unwritable directory).  Privilege separation is enabled by default in
 the Debian package, with no manual configuration required.
 
-If you find a security vulnerability in rdiscd, please contact me
-privately at agwa@andrewayer.name, optionally using my PGP key,
-EF5D84C1838F2EB6D8968C0410378EFC2080080C.
+As of 2021, rdiscd is no longer maintained and security vulnerabilities
+will not be fixed.  If you find a security vulnerability in rdiscd,
+please report it to a full disclosure mailing list so users of rdiscd
+are made aware of it.

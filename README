@@ -10,12 +10,6 @@ It also supports RFC 7217 for generating semantically opaque interface
 IDs (aka "stable privacy addresses").
 
 
-DOWNLOADING RDISCD
-
-Source Tarball: <https://www.agwa.name/projects/downloads/rdiscd-0.6.tar.gz>
- PGP Signature: <https://www.agwa.name/projects/downloads/rdiscd-0.6.tar.gz.asc>
-
-
 DEPENDENCIES
 
 libndp v1.2 or higher <http://libndp.org/>
@@ -53,32 +47,11 @@ Example:
 
 CURRENT STATUS
 
-The current version of rdiscd is 0.6, released on 2017-04-16.  rdiscd aims
-to be bug-free and reliable, meaning it shouldn't crash or malfunction.
-It has been successfully used in production on servers, desktops,
-and laptops.  It contains basic support for autoconfiguring addresses
-and the default gateway, but does not support route or DNS server
-advertisements.
-
-As of 2019, rdiscd is no longer under active development.  It will receive
-critical bug fixes but new features are unlikely to be added.
-
-
-PROJECT RESOURCES
-
-Home page:	https://agwa.name/projects/rdiscd
-Git repository:	https://agwa.name/git/rdiscd.git
-		https://github.com/AGWA/rdiscd.git (mirror)
-GitHub project:	https://github.com/AGWA/rdiscd
-Issue tracker:	https://github.com/AGWA/rdiscd/issues
-Announce list:	https://lists.cloudmutt.com/mailman/listinfo/rdiscd-announce
-Discuss list:	https://lists.cloudmutt.com/mailman/listinfo/rdiscd-discuss
-
-For help or questions, send mail to the discuss list
-<rdiscd-discuss@lists.cloudmutt.com>.  To report a bug or make a feature
-request, please open an issue at GitHub or send mail to the discuss list.
-To contribute code, please send a properly-formatted patch to the discuss
-list, or open a pull request at GitHub.
+As of 2021, rdiscd is no longer maintained.  The code contains basic
+support for autoconfiguring addresses and the default gateway, but does
+not support route or DNS server advertisements.  The code does not
+contain any known bugs and worked reliably for many years.  However,
+the author no longer uses it and provides no support for it.
 
 
 DEBIAN PACKAGING
@@ -94,7 +67,7 @@ See the rdiscd(8) man page (rdiscd.8 in this repo).
 
 CREDITS
 
-rdiscd was written by Andrew Ayer <agwa at andrewayer dot name>.
+rdiscd was originally written by Andrew Ayer <agwa at andrewayer dot name>.
 
 rdiscd is inspired by the userspace SLAAC implementation in NetworkManager,
 and some code is based on the code found therein.
